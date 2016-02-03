@@ -5,13 +5,58 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mui="http://firstfloorsoftware.com/ModernUI"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="600" d:DesignWidth="800">
+
     <Grid Style="{StaticResource ContentRoot}">
-        <ScrollViewer>
-            <StackPanel MinWidth="200">
-                <TextBlock Text="BASIC PAGE" Style="{StaticResource Heading2}" />
-                <TextBlock Text="Content goes here" />
-            </StackPanel>
-        </ScrollViewer>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Button Name="AddORFeomeButton" Content="Add ORFeome" Grid.Column="0" Width="150" Height="30" Margin="0,0,0,30" Click="addORFeomeButton_Click">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Adding ORFeome</TextBlock>
+                        <TextBlock>Please upload an ORFeome. The file has to be .FASTA file and contain CDS sequences only!</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <RichTextBox Name="ORFeomeInfoRichTextBox" Grid.Row ="0" Grid.Column="1" HorizontalAlignment="Left" Height="50" Margin="25,0,0,0" VerticalAlignment="Top" Width="550" IsReadOnly="True" BorderThickness="1" Background="{x:Null}">
+            <FlowDocument>
+                <Paragraph>
+                    <Run x:Name="InfoRichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+            <RichTextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Informations about ORFeome</TextBlock>
+                        <TextBlock>There you can see informations about your ORFeome.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </RichTextBox.ToolTip>
+        </RichTextBox>
+        <Button Name="CCrankButton" Content="Count codon context rank" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="550" Height="50" Margin="25,10,0,0" Click="CCrankButton_Click">
+        <Button.ToolTip>
+            <ToolTip>
+                <StackPanel>
+                    <TextBlock FontWeight="Bold">Counting CC ranking</TextBlock>
+                        <TextBlock>When you use this button the CC ranking will be count.</TextBlock>
+                </StackPanel>
+            </ToolTip>
+        </Button.ToolTip>
+        </Button>
+        <RichTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="100" Width="550" Margin="25,85,0,0" VerticalAlignment="Top" IsReadOnly="True" BorderThickness="1" Background="{x:Null}">
+            <FlowDocument>
+                <Paragraph>
+                    <Run x:Name="CCRankInfoRichTextBox"/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
     </Grid>
 </UserControl>

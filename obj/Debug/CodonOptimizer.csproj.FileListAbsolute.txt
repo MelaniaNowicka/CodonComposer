@@ -16,3 +16,4 @@ D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Debug\Pages\HowToUse.bam
 D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Debug\Pages\CCranking.g.cs
 D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Debug\Pages\HowToUse.g.cs
 D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Debug\Assets\ModernUI.OptimizerTheme.baml
+D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\bin\Debug\Bio.dll

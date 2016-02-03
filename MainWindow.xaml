@@ -4,6 +4,8 @@
                   xmlns:mui="http://firstfloorsoftware.com/ModernUI"
                   Title="Codon Optimizer" 
                   Width="1024" Height="768"
+                  ResizeMode="NoResize"
+                  WindowStartupLocation="CenterScreen"
                   Style="{StaticResource BlankWindow}">
     
     <Grid Style="{StaticResource ContentRoot}">
