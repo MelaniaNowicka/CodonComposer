@@ -16,7 +16,6 @@ using CodonOptimizer.Classes;
 using Bio;
 using Bio.IO;
 using FirstFloor.ModernUI.Windows.Controls;
-using System.Windows;
 
 namespace CodonOptimizer.Classes
 {
@@ -57,6 +56,10 @@ namespace CodonOptimizer.Classes
         /// </summary>
         private List<string> AminoAcids;
 
+
+        /// <summary>
+        /// Amino acids dictionary
+        /// </summary>
         Dictionary<string, char> CodonsToAmino = new Dictionary<string, char>() 
         {
             // Phenylalanine
@@ -142,7 +145,12 @@ namespace CodonOptimizer.Classes
             {"GGC",'G'},
             {"GGA",'G'},
             {"GGG",'G'}
-        }; 
+        };
+
+        /// <summary>
+        /// CPS dictionary
+        /// </summary>
+        Dictionary<string, double> CPS;
 
         /// <summary>
         /// Show information about ORFeome in ORFeomeInfoRichTextBox;
@@ -189,7 +197,7 @@ namespace CodonOptimizer.Classes
         /// </summary>
         private void seqencesToList()
         {
-            // temporary sequence
+            // temporary variables
             string seqTemp;
             string aminoPair;
             string amino = "nana";
@@ -217,7 +225,7 @@ namespace CodonOptimizer.Classes
                             (seqTemp.Substring(i, 3) != "TAG" && (seqTemp.Substring(i + 3, 3)) != "TAG"))
                         {
                             // adding codons pairs
-                            //outSeq.WriteLine(seqTemp.Substring(i, 6) + "\n");
+                            outSeq.WriteLine(seqTemp.Substring(i, 6) + "\n");
                             this.CodonPairs.Add(seqTemp.Substring(i, 6));
 
                             // adding amino acids pairs
@@ -225,7 +233,7 @@ namespace CodonOptimizer.Classes
                                         + this.CodonsToAmino[seqTemp.Substring(i + 3, 3)].ToString();
 
                             this.AminoAcidsPairs.Add(aminoPair);
-                            //outSeq.WriteLine(aminoPair + "\n");
+                            outSeq.WriteLine(aminoPair + "\n");
                         }
 
                     }
@@ -244,7 +252,7 @@ namespace CodonOptimizer.Classes
                             //adding amino acids
                             amino = this.CodonsToAmino[seqTemp.Substring(i, 3)].ToString();
                             this.AminoAcids.Add(amino);
-                            //outSeq.WriteLine(amino + "\n");
+                            outSeq.WriteLine(amino + "\n");
                             
                         }
                     }
@@ -254,46 +262,138 @@ namespace CodonOptimizer.Classes
             }
         }
 
-        private void codonsToAminoAcids()
-        {
-            foreach (string cp in CodonPairs)
-            {
-
-            }
-        }
         
         /// <summary>
         /// CPS counter
         /// </summary>
         internal void countCPS()
         {
+            // temporary variables
+            string aminoPair;
+            string codonPair;
+            string c1;
+            string c2;
+            double CPScore;
+
+            // CPS dictionary declaration
+            this.CPS = new Dictionary<string, double>();
+
+            // temporary variables
+            // frequencies
+            // fab - frequency of codon pair
+            // fxy - frequency of amino pair
+            // fa - frequency of first codon 
+            // fb - frequency of second codon
+            // fx - frequency of first amino acid
+            // fy - frequency of second amino acid
+            int fab = 0, fxy = 0, fa = 0, fb = 0, fx = 0, fy = 0;
 
             // sequencesToList method initialization
             seqencesToList();
 
-            // counting elements
-            var CodonPairCounts = CodonPairs.GroupBy(i => i);
-            var CodonCounts = Codons.GroupBy(i => i);
+            // counting elements to dictionaries
+            Dictionary<string, int> CodonPairCounts = CodonPairs.GroupBy(i => i)
+                .ToDictionary(i => i.Key, i => i.Count());
 
-            var AminoAcidPairCounts = AminoAcidsPairs.GroupBy(i => i);
-            var AminoAcidCounts = AminoAcids.GroupBy(i => i);
+            Dictionary<string, int> CodonCounts = Codons.GroupBy(i => i)
+                .ToDictionary(i => i.Key, i => i.Count());
+
+            Dictionary<string, int> AminoAcidPairCounts = AminoAcidsPairs.GroupBy(i => i)
+                .ToDictionary(i => i.Key, i => i.Count());
+
+            Dictionary<string, int> AminoAcidCounts = AminoAcids.GroupBy(i => i)
+                .ToDictionary(i => i.Key, i => i.Count());
+
+
+            // codon pairs counting results to file
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(@"D:/codonsPairsCounts.txt"))
+            {
+                foreach (var cp in CodonPairCounts)
+                {
+                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                }
+            }
+
+            // amino acid pairs counting results to file
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(@"D:/aminosPairsCounts.txt"))
+            {
+                foreach (var cp in AminoAcidPairCounts)
+                {
+                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                }
+            }
+
+            // codons counting results to file
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(@"D:/codonsCounts.txt"))
+            {
+                foreach (var cp in CodonCounts)
+                {
+                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                }
+            }
+
+            // amino acids counting results to file
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(@"D:/aminosCounts.txt"))
+            {
+                foreach (var cp in AminoAcidCounts)
+                {
+                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                }
+            }
 
             using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(@"D:/codons.txt"))
             {
-                foreach (var c in CodonPairCounts)
+                foreach (var cp in CodonPairCounts)
                 {
-                    outFile.WriteLine(c.Key + " " + c.Count());
+
+                    // writing fab to file
+                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                  
+                    // fab definition 
+                    fab = cp.Value;
+
+                    codonPair = cp.Key.ToString();
+                    aminoPair = this.CodonsToAmino[codonPair.Substring(0, 3)].ToString() + this.CodonsToAmino[codonPair.Substring(3, 3)].ToString();
+
+                    // fxy definition
+                    fxy = AminoAcidPairCounts[aminoPair];
+
+                    // codons substrings
+                    c1 = codonPair.Substring(0, 3).ToString();
+                    c2 = codonPair.Substring(3, 3).ToString();
+
+                    // fa, fb definition
+
+                    fa = CodonCounts[c1];
+                    fb = CodonCounts[c2];
+
+                    // fx, fy definition
+
+                    fx = AminoAcidCounts[CodonsToAmino[c1].ToString()];
+                    fy = AminoAcidCounts[CodonsToAmino[c2].ToString()];
+
+                    // writing fxy, fx, fy, fa, fb fo file 
+                    outFile.WriteLine("fxy" + fxy);
+                    outFile.WriteLine("fx" + fx);
+                    outFile.WriteLine("fa" + fa);
+                    outFile.WriteLine("fy" + fy);
+                    outFile.WriteLine("fb" + fb +"\n");
+
+                    // CPS counting
+                    CPScore = Math.Log((double)fab / ((((double)fa * (double)fb) / ((double)fx * (double)fy)) * (double)fxy));
+                    CPS.Add(codonPair, CPScore);
+                   
                 }
             }
 
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(@"D:/aminos.txt"))
+            // CPS to file CPSores
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(@"D:/CPSores.txt"))
             {
-                foreach (var c in AminoAcidPairCounts)
+                foreach (KeyValuePair<string, double> cps in CPS)
                 {
-                    outFile.WriteLine(c.Key + " " + c.Count());
+                    outFile.WriteLine(cps.Key + " " + cps.Value);
                 }
             }
-
         }
     }
 }
