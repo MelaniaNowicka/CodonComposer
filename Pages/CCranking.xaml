@@ -41,22 +41,35 @@
                 </ToolTip>
             </RichTextBox.ToolTip>
         </RichTextBox>
-        <Button Name="CCrankButton" Content="Count codon context rank" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="550" Height="50" Margin="25,10,0,0" Click="CCrankButton_Click">
-        <Button.ToolTip>
-            <ToolTip>
-                <StackPanel>
-                    <TextBlock FontWeight="Bold">Counting CC ranking</TextBlock>
+        <Button Name="CCrankButton" Content="Calculate codon context rank" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="550" Height="50" Margin="25,10,0,0" Click="CCrankButton_Click">
+            <Button.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold">Counting CC ranking</TextBlock>
                         <TextBlock>When you use this button the CC ranking will be count.</TextBlock>
-                </StackPanel>
-            </ToolTip>
-        </Button.ToolTip>
+                    </StackPanel>
+                </ToolTip>
+            </Button.ToolTip>
         </Button>
-        <RichTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="100" Width="550" Margin="25,85,0,0" VerticalAlignment="Top" IsReadOnly="True" BorderThickness="1" Background="{x:Null}">
+        <RichTextBox Name ="CPSRichTextBox"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="314" Width="550" Margin="25,120,0,0" VerticalAlignment="Top" IsReadOnly="True" BorderThickness="1" Background="{x:Null}">
+            <RichTextBox.BindingGroup>
+                <BindingGroup/>
+            </RichTextBox.BindingGroup>
             <FlowDocument>
                 <Paragraph>
                     <Run x:Name="CCRankInfoRichTextBox"/>
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
+        <ProgressBar Name ="CCProgressBar" Grid.Column="1" HorizontalAlignment="Left" Height="9" Margin="25,90,0,0" Grid.Row="1" VerticalAlignment="Top" Width="550">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleY="-1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
     </Grid>
 </UserControl>
