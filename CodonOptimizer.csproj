@@ -69,7 +69,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Classes\CCranking.cs" />
+    <Compile Include="Classes\CCranker.cs" />
+    <Compile Include="Classes\ORF.cs" />
+    <Compile Include="Classes\SeqParser.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -80,12 +82,19 @@
     <Compile Include="Pages\HowToUse.xaml.cs">
       <DependentUpon>HowToUse.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Optimalization.xaml.cs">
+      <DependentUpon>Optimalization.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Page Include="Pages\CCranking.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\HowToUse.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Optimalization.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

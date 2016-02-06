@@ -5,13 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mui="http://firstfloorsoftware.com/ModernUI"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Style="{StaticResource ContentRoot}">
-        <ScrollViewer>
-            <StackPanel MinWidth="200">
-                <TextBlock Text="BASIC PAGE" Style="{StaticResource Heading2}" />
-                <TextBlock Text="Content goes here" />
-            </StackPanel>
-        </ScrollViewer>
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBox Name="CPBscore" HorizontalAlignment="Left" Height="25" Margin="56,322,0,0" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="87"/>
+        <DataGrid Name="BeforeOptimalizationDataGrid" HorizontalAlignment="Left" Margin="10,76,-155,0" Grid.Row="2" VerticalAlignment="Top" Height="50" Width="748"/>
+        <Button Name ="LoadORFButton" Content="Load ORF" Grid.Row="1" HorizontalAlignment="Left" Height="30" Margin="10,0,-156,0" VerticalAlignment="Top" Width="748" Click="LoadORFButton_Click"/>
+        <DataGrid Name ="OptimalizedSeqDataGrid" Grid.Row="2" HorizontalAlignment="Left" Height="50" Margin="11,243,-154,0" VerticalAlignment="Top" Width="747"/>
+        <Label Content="OPTIMALIZED ORF" Grid.Column="1" HorizontalAlignment="Left" Height="19" Margin="10,205,0,0" Grid.Row="2" VerticalAlignment="Top" Width="196" RenderTransformOrigin="0.5,0.5" FontWeight="Bold" FontSize="14"/>
+        <Label Content="CPB:" Grid.Column="1" HorizontalAlignment="Left" Margin="10,322,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" FontSize="15"/>
+        <Label Content="CURRENT ORF" Grid.Column="1" HorizontalAlignment="Left" Margin="11,39,0,0" VerticalAlignment="Top" Width="132" FontWeight="Bold" Grid.Row="2" FontSize="14"/>
+
     </Grid>
 </UserControl>

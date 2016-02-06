@@ -23,22 +23,23 @@ using CodonOptimizer.Pages;
 
 namespace CodonOptimizer.Classes
 {
-    class CCranking
+    class CCranker
     {
-        public CCranking()
+        public CCranker()
         {
-
+            CDScount = 0;
+            ORFeome = new List<string>();
         }
-
-        /// <summary>
-        /// ORFeome parser
-        /// </summary>
-        private ISequenceParser parser;
 
         /// <summary>
         /// ORFeome from file to list
         /// </summary>
-        internal List<ISequence> ORFeome;
+        internal List<string> ORFeome;
+
+        /// <summary>
+        /// CDS count
+        /// </summary>
+        internal int CDScount;
 
         /// <summary>
         /// CodonPairs list object
@@ -162,44 +163,24 @@ namespace CodonOptimizer.Classes
         internal string Path;
 
         /// <summary>
-        /// Show information about ORFeome in ORFeomeInfoRichTextBox;
+        /// Dictionary CodonPairCounts declaration
         /// </summary>
-        public int readORFeome(string file)
-        {
-            parser = SequenceParsers.FindParserByFileName(file);
-            ORFeome = new List<ISequence>();
-
-            // parsing sequence
-            try
-            {
-                using (parser)
-                {
-                    this.ORFeome = parser.Parse().ToList();
-                }
-                parser.Close();
-            }
-            catch (System.IO.FileFormatException)
-            {
-                string message = "Something went wrong. Probably you tried to use an improper file. Try again. \nFor more information about using Codon Context Ranking check the \"How to use\" page.";
-                ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
-            }
-
-            return ORFeome.Count;
-        }
+        Dictionary<string, int> CodonPairCounts;
 
         /// <summary>
-        /// Returns full fragment sequence as a string. Based on .NET Bio Programming Guide.
+        /// Dictionary CodonCounts declaration
         /// </summary>
-        /// <returns>Sequence string.</returns>
-        private string getString(ISequence seq)
-        {
-            char[] symbols = new char[seq.Count];
-            for (long index = 0; index < seq.Count; index++)
-            {
-                symbols[index] = (char)seq[index];
-            }
-            return new String(symbols);
-        }
+        Dictionary<string, int> CodonCounts;
+
+        /// <summary>
+        /// Dictionary AminoAcidPairCounts declaration
+        /// </summary>
+        Dictionary<string, int> AminoAcidPairCounts;
+
+        /// <summary>
+        /// Dictionary AminoAcidCounts declaration
+        /// </summary>
+        Dictionary<string, int> AminoAcidCounts;
 
         /// <summary>
         /// Counting codon pairs, codons
@@ -207,10 +188,9 @@ namespace CodonOptimizer.Classes
         private void seqencesToList()
         {
             // temporary variables
-            string seqTemp;
             string aminoPair;
-            string amino = "nana";
-
+            string amino;
+            int n = 0;
 
             // lists initialization
             CodonPairs = new List<string>();
@@ -221,64 +201,44 @@ namespace CodonOptimizer.Classes
             // writing to file
             using (System.IO.StreamWriter outSeq = new System.IO.StreamWriter(Path + @"/sequences.txt"))
             {
-                foreach (ISequence seq in this.ORFeome)
+                foreach (string codon in this.ORFeome)
                 {
-                    seqTemp = getString(seq);
-
-                    // codon pairs substrings
-                    for (int i = 0; i < seqTemp.Length - 5; i += 3)
+                    // stop codons elimination
+                    if ((codon != "TGA" && codon != "TGA") &&
+                        (codon != "TAA" && codon != "TAA") &&
+                        (codon != "TAG" && codon != "TAG"))
                     {
-                        // stop codons elimination
-                        if ((seqTemp.Substring(i, 3) != "TGA" && (seqTemp.Substring(i + 3, 3)) != "TGA") &&
-                            (seqTemp.Substring(i, 3) != "TAA" && (seqTemp.Substring(i + 3, 3)) != "TAA") &&
-                            (seqTemp.Substring(i, 3) != "TAG" && (seqTemp.Substring(i + 3, 3)) != "TAG"))
+
+                        if (n != 0)
                         {
                             // adding codons pairs
-                            outSeq.WriteLine(seqTemp.Substring(i, 6) + "\n");
-                            this.CodonPairs.Add(seqTemp.Substring(i, 6));
+                            if ((ORFeome[n - 1] != "TGA" && ORFeome[n - 1] != "TGA") &&
+                                (ORFeome[n - 1] != "TAA" && ORFeome[n - 1] != "TAA") &&
+                                (ORFeome[n - 1] != "TAG" && ORFeome[n - 1] != "TAG"))
+                            {
+                                this.CodonPairs.Add(ORFeome[n - 1] + codon);
+                                outSeq.WriteLine(ORFeome.IndexOf(codon));
+                                outSeq.WriteLine(ORFeome[n - 1]);
+                                outSeq.WriteLine(codon);
+                                // adding amino acids pairs
+                                aminoPair = this.CodonsToAmino[ORFeome[n - 1]].ToString()
+                                            + this.CodonsToAmino[codon].ToString();
 
-                            // adding amino acids pairs
-                            aminoPair = this.CodonsToAmino[seqTemp.Substring(i, 3)].ToString()
-                                        + this.CodonsToAmino[seqTemp.Substring(i + 3, 3)].ToString();
-
-                            this.AminoAcidsPairs.Add(aminoPair);
-                            outSeq.WriteLine(aminoPair + "\n");
+                                this.AminoAcidsPairs.Add(aminoPair);
+                            }
                         }
+                        // adding codons
+                        //outSeq.WriteLine(seqTemp.Substring(i, 3) + "\n");
+                        this.Codons.Add(codon);
 
+                        //adding amino acids
+                        amino = this.CodonsToAmino[codon].ToString();
+                        this.AminoAcids.Add(amino);
                     }
-
-                    // codon substrings
-                    for (int i = 0; i < seqTemp.Length - 2; i += 3)
-                    {
-                        if (seqTemp.Substring(i, 3) != "TGA" &&
-                            seqTemp.Substring(i, 3) != "TAA" &&
-                            seqTemp.Substring(i, 3) != "TAG")
-                        {
-                            // adding codons
-                            //outSeq.WriteLine(seqTemp.Substring(i, 3) + "\n");
-                            this.Codons.Add(seqTemp.Substring(i, 3));
-
-                            //adding amino acids
-                            amino = this.CodonsToAmino[seqTemp.Substring(i, 3)].ToString();
-                            this.AminoAcids.Add(amino);
-                            outSeq.WriteLine(amino + "\n");
-
-                        }
-                    }
-
-                    outSeq.WriteLine("\n\n");
+                    n++;
                 }
             }
         }
-
-
-        /// <summary>
-        /// Dictionary declaration
-        /// </summary>
-        Dictionary<string, int> CodonPairCounts;
-        Dictionary<string, int> CodonCounts;
-        Dictionary<string, int> AminoAcidPairCounts;
-        Dictionary<string, int> AminoAcidCounts;
 
         internal void elemCounter()
         {
@@ -364,15 +324,12 @@ namespace CodonOptimizer.Classes
             // fy - frequency of second amino acid
             int fab = 0, fxy = 0, fa = 0, fb = 0, fx = 0, fy = 0;
 
-            
-
             using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/CPSvariables.txt"))
             {
-                Console.WriteLine(CodonPairCounts.Count);
                 foreach (var cp in CodonPairCounts)
                 {
                     Thread.Sleep(10);
-                    (o as BackgroundWorker).ReportProgress(100*counter/(CodonPairCounts.Count-1));
+                    (o as BackgroundWorker).ReportProgress(100 * counter / (CodonPairCounts.Count - 1));
 
                     // writing fab to file
                     //outFile.WriteLine(cp.Key + " " + cp.Value);

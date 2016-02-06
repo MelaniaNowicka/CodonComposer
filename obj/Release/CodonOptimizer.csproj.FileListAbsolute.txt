@@ -17,3 +17,5 @@ D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Release\CodonOptimizer_M
 D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Release\CodonOptimizer.g.resources
 D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Release\CodonOptimizer.exe
 D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Release\CodonOptimizer.pdb
+D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Release\Pages\Optimalization.baml
+D:\Studia\{{MGR}}\Git\CodonOptimizer\CodonOptimizer\obj\Release\Pages\Optimalization.g.cs

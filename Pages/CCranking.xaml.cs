@@ -21,13 +21,13 @@ using FirstFloor.ModernUI.Windows.Controls;
 namespace CodonOptimizer.Pages
 {
     /// <summary>
-    /// Interaction logic for CCrank.xaml
+    /// 
     /// </summary>
-    public partial class CCrank : System.Windows.Controls.UserControl
+    public partial class CCranking : System.Windows.Controls.UserControl
     {
-        public CCrank()
+        public CCranking()
         {
-            CCranking = new CCranking();
+            CCranker = new CCranker();
             InitializeComponent();
         }
 
@@ -39,7 +39,7 @@ namespace CodonOptimizer.Pages
         /// <summary>
         /// CCranking object
         /// </summary>
-        internal static CCranking CCranking { get; set; }
+        internal static CCranker CCranker { get; set; }
 
         /// <summary>
         /// Background worker
@@ -77,14 +77,16 @@ namespace CodonOptimizer.Pages
             if (openResult == true)
             {
                 string file = openFileDialog.FileName; // file handler
-                int count = 0;
 
-                count = CCranking.readORFeome(file);
+                var tupleTemp = SeqParser.parseSequence(file);
+
+                CCranker.ORFeome = tupleTemp.Item1;
+                CCranker.CDScount = tupleTemp.Item2;
 
                 // adding information to ORFeomeInfoRichTextBox
-                if (CCranking.ORFeome.Count != 0)
+                if (CCranker.CDScount != 0)
                 {
-                    ORFeomeInfoRichTextBox.AppendText("Number of CDSs: " + count);
+                    ORFeomeInfoRichTextBox.AppendText("Number of CDSs: " + CCranker.CDScount);
                 }
             }
             else
@@ -112,18 +114,20 @@ namespace CodonOptimizer.Pages
             if (result == DialogResult.OK)
             {
                 CPSRichTextBox.AppendText("Please, wait a moment for results...\n\n");
+
                 // setting a path
-                CCranking.Path = folderBrowserDialog.SelectedPath;
-                // backfround worker initialization, CPR counter initialization
-                worker.DoWork += new DoWorkEventHandler(CCranking.countCPS);
+                CCranker.Path = folderBrowserDialog.SelectedPath;
+
+                // background worker initialization, CPR counter initialization
+                worker.DoWork += new DoWorkEventHandler(CCranker.countCPS);
                 worker.ProgressChanged += new ProgressChangedEventHandler(worker_ProgressChanged);
                 worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(worker_RunWorkerCompleted);
                 worker.WorkerReportsProgress = true;
 
                 CCProgressBar.Value = 0;
                 
-                // Elements counter inicialization
-                CCranking.elemCounter();
+                // Elements counter initialization
+                CCranker.elemCounter();
                 CPSRichTextBox.AppendText("Calculating...");
                 worker.RunWorkerAsync();
             }
