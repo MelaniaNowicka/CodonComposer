@@ -61,97 +61,6 @@ namespace CodonOptimizer.Classes
         /// </summary>
         private List<string> AminoAcids;
 
-
-        /// <summary>
-        /// Amino acids dictionary
-        /// </summary>
-        Dictionary<string, char> CodonsToAmino = new Dictionary<string, char>() 
-        {
-            // Phenylalanine
-            {"TTT",'F'},
-            {"TTC",'F'},
-            // Leucine
-            {"TTA",'L'},
-            {"TTG",'L'},
-            {"CTT",'L'},
-            {"CTC",'L'},
-            {"CTA",'L'},
-            {"CTG",'L'},
-            // Isoleucine
-            {"ATT",'I'},
-            {"ATC",'I'},
-            {"ATA",'I'},
-            // Methionine
-            {"ATG",'M'},
-            // Valine
-            {"GTT",'V'},
-            {"GTC",'V'},
-            {"GTA",'V'},
-            {"GTG",'V'},
-            // Serine
-            {"TCT",'S'},
-            {"TCC",'S'},
-            {"TCA",'S'},
-            {"TCG",'S'},
-            // Proline
-            {"CCT",'P'},
-            {"CCC",'P'},
-            {"CCA",'P'},
-            {"CCG",'P'},
-            // Threonine
-            {"ACT",'T'},
-            {"ACC",'T'},
-            {"ACA",'T'},
-            {"ACG",'T'},
-            //Alanine
-            {"GCT",'A'},
-            {"GCC",'A'},
-            {"GCA",'A'},
-            {"GCG",'A'},
-            // Tyrosine
-            {"TAT",'Y'},
-            {"TAC",'Y'},
-            // Histidine
-            {"CAT",'H'},
-            {"CAC",'H'},
-            // Glutamine
-            {"CAA",'Q'},
-            {"CAG",'Q'},
-            // Aparagine
-            {"AAT",'N'},
-            {"AAC",'N'},
-            // Lysine
-            {"AAA",'K'},
-            {"AAG",'K'},
-            // Aspartic acid
-            {"GAT",'D'},
-            {"GAC",'D'},
-            // Glutamic acid
-            {"GAA",'E'},
-            {"GAG",'E'},
-            // Cysteine
-            {"TGT",'C'},
-            {"TGC",'C'},
-            // Tryptophan
-            {"TGG",'W'},
-            // Arginine
-            {"CGT",'R'},
-            {"CGC",'R'},
-            {"CGA",'R'},
-            {"CGG",'R'},
-            // Serine
-            {"AGT",'S'},
-            {"AGC",'S'},
-            // Arginine
-            {"AGA",'R'},
-            {"AGG",'R'},
-            // Glycine
-            {"GGT",'G'},
-            {"GGC",'G'},
-            {"GGA",'G'},
-            {"GGG",'G'}
-        };
-
         /// <summary>
         /// CPS dictionary
         /// </summary>
@@ -217,12 +126,10 @@ namespace CodonOptimizer.Classes
                                 (ORFeome[n - 1] != "TAG" && ORFeome[n - 1] != "TAG"))
                             {
                                 this.CodonPairs.Add(ORFeome[n - 1] + codon);
-                                outSeq.WriteLine(ORFeome.IndexOf(codon));
-                                outSeq.WriteLine(ORFeome[n - 1]);
-                                outSeq.WriteLine(codon);
+
                                 // adding amino acids pairs
-                                aminoPair = this.CodonsToAmino[ORFeome[n - 1]].ToString()
-                                            + this.CodonsToAmino[codon].ToString();
+                                aminoPair = SeqParser.CodonsToAmino[ORFeome[n - 1]].ToString()
+                                            + SeqParser.CodonsToAmino[codon].ToString();
 
                                 this.AminoAcidsPairs.Add(aminoPair);
                             }
@@ -232,7 +139,7 @@ namespace CodonOptimizer.Classes
                         this.Codons.Add(codon);
 
                         //adding amino acids
-                        amino = this.CodonsToAmino[codon].ToString();
+                        amino = SeqParser.CodonsToAmino[codon].ToString();
                         this.AminoAcids.Add(amino);
                     }
                     n++;
@@ -338,7 +245,7 @@ namespace CodonOptimizer.Classes
                     fab = cp.Value;
 
                     codonPair = cp.Key.ToString();
-                    aminoPair = this.CodonsToAmino[codonPair.Substring(0, 3)].ToString() + this.CodonsToAmino[codonPair.Substring(3, 3)].ToString();
+                    aminoPair = SeqParser.CodonsToAmino[codonPair.Substring(0, 3)].ToString() + SeqParser.CodonsToAmino[codonPair.Substring(3, 3)].ToString();
 
                     // fxy definition
                     fxy = AminoAcidPairCounts[aminoPair];
@@ -354,8 +261,8 @@ namespace CodonOptimizer.Classes
 
                     // fx, fy definition
 
-                    fx = AminoAcidCounts[CodonsToAmino[c1].ToString()];
-                    fy = AminoAcidCounts[CodonsToAmino[c2].ToString()];
+                    fx = AminoAcidCounts[SeqParser.CodonsToAmino[c1].ToString()];
+                    fy = AminoAcidCounts[SeqParser.CodonsToAmino[c2].ToString()];
 
                     // writing fxy, fx, fy, fa, fb fo file 
                     //outFile.WriteLine("fxy" + fxy);

@@ -8,6 +8,8 @@ using Bio;
 using Bio.IO;
 using FirstFloor.ModernUI.Windows.Controls;
 using System.Windows;
+using CodonOptimizer.Classes;
+using CodonOptimizer.Pages;
 
 namespace CodonOptimizer.Classes
 {
@@ -16,19 +18,36 @@ namespace CodonOptimizer.Classes
 
         public ORF()
         {
-
+            ORFseq = new List<string>();
         }
 
-
+        /// <summary>
+        /// List of ORF
+        /// </summary>
+        internal List<string> ORFseq;
 
         /// <summary>
-        /// ORF from file to list
+        /// CPB score
         /// </summary>
-        internal List<ISequence> ORFseq;
+        internal double CPB;
 
+        internal double CPBcalculator()
+        {
+            CPB = 0;
+            int n = 0; 
+            foreach (string codon in ORFseq)
+            {
+                if (n != 0 && codon != "TGA" && codon != "TAA" && codon != "TAG")
+                {
+                    CPB += CCranking.CCranker.CPS[ORFseq[n-1]+codon];
+                }
+                n++;
+            }
 
+            CPB = CPB / (ORFseq.Count - 1);
 
-
+            return Math.Round(CPB, 4);
+        }
 
   
     }

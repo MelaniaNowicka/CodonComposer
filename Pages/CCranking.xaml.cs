@@ -78,7 +78,7 @@ namespace CodonOptimizer.Pages
             {
                 string file = openFileDialog.FileName; // file handler
 
-                var tupleTemp = SeqParser.parseSequence(file);
+                var tupleTemp = SeqParser.sequenceParser(file);
 
                 CCranker.ORFeome = tupleTemp.Item1;
                 CCranker.CDScount = tupleTemp.Item2;

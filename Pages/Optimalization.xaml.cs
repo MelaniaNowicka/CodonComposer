@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CodonOptimizer.Classes;
 using FirstFloor.ModernUI.Windows.Controls;
+using System.Data;
 
 namespace CodonOptimizer.Pages
 {
@@ -70,7 +71,26 @@ namespace CodonOptimizer.Pages
                 // parseORF method initialization
                 //ORF.parseORF(file);
 
-                BeforeOptimalizationDataGrid.ItemsSource = ORF.ORFseq;
+                var tupleTemp = SeqParser.sequenceParser(file);
+                ORF.ORFseq = tupleTemp.Item1;
+                int count = 1;
+
+                DataTable Data = new DataTable();
+
+                List<string> aminos = SeqParser.codonToAminoParser(ORF.ORFseq);
+
+                foreach (var k in aminos)
+                {
+                    Data.Columns.Add(new DataColumn(count.ToString()));
+                    count++;
+                }
+
+                Data.Rows.Add(ORF.ORFseq.ToArray());
+                Data.Rows.Add(aminos.ToArray());
+
+                BeforeOptimalizationDataGrid.ItemsSource = Data.DefaultView;
+
+                CPBscoreTextBox.Text = ORF.CPBcalculator().ToString();
             }
             else
             {

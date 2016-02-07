@@ -20,91 +20,95 @@ namespace CodonOptimizer.Classes
         /// <summary>
         /// Amino acids dictionary
         /// </summary>
-        private static Dictionary<string, char> CodonsToAmino = new Dictionary<string, char>() 
+        internal static Dictionary<string, string> CodonsToAmino = new Dictionary<string, string>() 
         {
             // Phenylalanine
-            {"TTT",'F'},
-            {"TTC",'F'},
+            {"TTT","F"},
+            {"TTC","F"},
             // Leucine
-            {"TTA",'L'},
-            {"TTG",'L'},
-            {"CTT",'L'},
-            {"CTC",'L'},
-            {"CTA",'L'},
-            {"CTG",'L'},
+            {"TTA","L"},
+            {"TTG","L"},
+            {"CTT","L"},
+            {"CTC","L"},
+            {"CTA","L"},
+            {"CTG","L"},
             // Isoleucine
-            {"ATT",'I'},
-            {"ATC",'I'},
-            {"ATA",'I'},
+            {"ATT","I"},
+            {"ATC","I"},
+            {"ATA","I"},
             // Methionine
-            {"ATG",'M'},
+            {"ATG","M"},
             // Valine
-            {"GTT",'V'},
-            {"GTC",'V'},
-            {"GTA",'V'},
-            {"GTG",'V'},
+            {"GTT","V"},
+            {"GTC","V"},
+            {"GTA","V"},
+            {"GTG","V"},
             // Serine
-            {"TCT",'S'},
-            {"TCC",'S'},
-            {"TCA",'S'},
-            {"TCG",'S'},
+            {"TCT","S"},
+            {"TCC","S"},
+            {"TCA","S"},
+            {"TCG","S"},
             // Proline
-            {"CCT",'P'},
-            {"CCC",'P'},
-            {"CCA",'P'},
-            {"CCG",'P'},
+            {"CCT","P"},
+            {"CCC","P"},
+            {"CCA","P"},
+            {"CCG","P"},
             // Threonine
-            {"ACT",'T'},
-            {"ACC",'T'},
-            {"ACA",'T'},
-            {"ACG",'T'},
+            {"ACT","T"},
+            {"ACC","T"},
+            {"ACA","T"},
+            {"ACG","T"},
             //Alanine
-            {"GCT",'A'},
-            {"GCC",'A'},
-            {"GCA",'A'},
-            {"GCG",'A'},
+            {"GCT","A"},
+            {"GCC","A"},
+            {"GCA","A"},
+            {"GCG","A"},
             // Tyrosine
-            {"TAT",'Y'},
-            {"TAC",'Y'},
+            {"TAT","Y"},
+            {"TAC","Y"},
             // Histidine
-            {"CAT",'H'},
-            {"CAC",'H'},
+            {"CAT","H"},
+            {"CAC","H"},
             // Glutamine
-            {"CAA",'Q'},
-            {"CAG",'Q'},
+            {"CAA","Q"},
+            {"CAG","Q"},
             // Aparagine
-            {"AAT",'N'},
-            {"AAC",'N'},
+            {"AAT","N"},
+            {"AAC","N"},
             // Lysine
-            {"AAA",'K'},
-            {"AAG",'K'},
+            {"AAA","K"},
+            {"AAG","K"},
             // Aspartic acid
-            {"GAT",'D'},
-            {"GAC",'D'},
+            {"GAT","D"},
+            {"GAC","D"},
             // Glutamic acid
-            {"GAA",'E'},
-            {"GAG",'E'},
+            {"GAA","E"},
+            {"GAG","E"},
             // Cysteine
-            {"TGT",'C'},
-            {"TGC",'C'},
+            {"TGT","C"},
+            {"TGC","C"},
             // Tryptophan
-            {"TGG",'W'},
+            {"TGG","W"},
             // Arginine
-            {"CGT",'R'},
-            {"CGC",'R'},
-            {"CGA",'R'},
-            {"CGG",'R'},
+            {"CGT","R"},
+            {"CGC","R"},
+            {"CGA","R"},
+            {"CGG","R"},
             // Serine
-            {"AGT",'S'},
-            {"AGC",'S'},
+            {"AGT","S"},
+            {"AGC","S"},
             // Arginine
-            {"AGA",'R'},
-            {"AGG",'R'},
+            {"AGA","R"},
+            {"AGG","R"},
             // Glycine
-            {"GGT",'G'},
-            {"GGC",'G'},
-            {"GGA",'G'},
-            {"GGG",'G'}
+            {"GGT","G"},
+            {"GGC","G"},
+            {"GGA","G"},
+            {"GGG","G"},
+            // STOP CODONS
+            {"TGA", "/"},
+            {"TAA", "/"},
+            {"TAG", "/"}
         };
 
         /// <summary>
@@ -161,6 +165,15 @@ namespace CodonOptimizer.Classes
             return new Tuple<List<string>, int>(list, sequences.Count);
         }
 
-        internal static Dictionary<string, char> codonAminoDictionary_maker()
+        internal static List<string> codonToAminoParser(List<string> list)
+        {
+            List<string> aminos = new List<string>();
+
+            foreach (string l in list)
+            {
+                aminos.Add(CodonsToAmino[l]);
+            }
+            return aminos;
+        }
     }
 }
