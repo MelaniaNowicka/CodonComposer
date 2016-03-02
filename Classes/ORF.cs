@@ -31,6 +31,11 @@ namespace CodonOptimizer.Classes
         /// </summary>
         internal double CPB;
 
+        /// <summary>
+        /// CPBcalculator method
+        /// method for CPB calculating
+        /// </summary>
+        /// <returns></returns>
         internal double CPBcalculator()
         {
             CPB = 0;

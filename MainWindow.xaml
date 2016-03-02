@@ -14,7 +14,7 @@
                 <mui:Link DisplayName="HOW TO USE" Source="/Pages/HowToUse.xaml" />
                 <mui:Link DisplayName="CODON CONTEXT RANKING" Source="/Pages/CCranking.xaml" />
                 <mui:Link DisplayName="PARAMETERS" />
-                <mui:Link DisplayName="OPTIMALIZATION" Source="/Pages/Optimalization.xaml" />
+                <mui:Link DisplayName="OPTIMIZATION" Source="/Pages/Optimization.xaml" />
                 <mui:Link DisplayName="ABOUT" />
             </mui:ModernTab.Links>
         </mui:ModernTab>

@@ -18,9 +18,9 @@ namespace CodonOptimizer.Classes
         private static ISequenceParser parser;
 
         /// <summary>
-        /// Amino acids dictionary
+        /// Codons to Amino acids dictionary
         /// </summary>
-        internal static Dictionary<string, string> CodonsToAmino = new Dictionary<string, string>() 
+        public static Dictionary<string, string> CodonToAmino = new Dictionary<string, string>() 
         {
             // Phenylalanine
             {"TTT","F"},
@@ -112,6 +112,7 @@ namespace CodonOptimizer.Classes
         };
 
         /// <summary>
+        /// getString method
         /// Returns full fragment sequence as a string. Based on .NET Bio Programming Guide.
         /// </summary>
         /// <returns>Sequence string.</returns>
@@ -126,11 +127,14 @@ namespace CodonOptimizer.Classes
         }
 
         /// <summary>
-        /// ORF parsing
+        /// sequenceParser method
+        /// method for parsing sequences from file
+        /// return tuple(list of codons, number of cds's)
         /// </summary>
         /// <param name="file"></param>
-        internal static Tuple<List<string>, int> sequenceParser(string file)
+        public static Tuple<List<string>, int> sequenceParser(string file)
         {
+
             parser = SequenceParsers.FindParserByFileName(file);
             List<ISequence> sequences = new List<ISequence>();
             List<string> list = new List<string>();
@@ -146,6 +150,7 @@ namespace CodonOptimizer.Classes
                     sequences = parser.Parse().ToList();
                     foreach (ISequence seq in sequences)
                     {
+                        // getString method initialization
                         seqTemp = getString(seq);
 
                         // adding codon substrings
@@ -165,13 +170,20 @@ namespace CodonOptimizer.Classes
             return new Tuple<List<string>, int>(list, sequences.Count);
         }
 
-        internal static List<string> codonToAminoParser(List<string> list)
+        /// <summary>
+        /// codonToAminoParser method
+        /// method for translating codons to amino acids
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static List<string> codonToAminoParser(List<string> list)
         {
             List<string> aminos = new List<string>();
 
+            // translating codons to amino acids using CodonToAmino dictionary
             foreach (string l in list)
             {
-                aminos.Add(CodonsToAmino[l]);
+                aminos.Add(CodonToAmino[l]);
             }
             return aminos;
         }

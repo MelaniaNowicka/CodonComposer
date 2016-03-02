@@ -92,9 +92,9 @@ namespace CodonOptimizer.Classes
         Dictionary<string, int> AminoAcidCounts;
 
         /// <summary>
-        /// Counting codon pairs, codons
+        /// SequencesToList method 
         /// </summary>
-        private void seqencesToList()
+        private void sequencesToList()
         {
             // temporary variables
             string aminoPair;
@@ -106,6 +106,7 @@ namespace CodonOptimizer.Classes
             Codons = new List<string>();
             AminoAcidsPairs = new List<string>();
             AminoAcids = new List<string>();
+            int stop = 0;
 
             // writing to file
             using (System.IO.StreamWriter outSeq = new System.IO.StreamWriter(Path + @"/sequences.txt"))
@@ -128,8 +129,8 @@ namespace CodonOptimizer.Classes
                                 this.CodonPairs.Add(ORFeome[n - 1] + codon);
 
                                 // adding amino acids pairs
-                                aminoPair = SeqParser.CodonsToAmino[ORFeome[n - 1]].ToString()
-                                            + SeqParser.CodonsToAmino[codon].ToString();
+                                aminoPair = SeqParser.CodonToAmino[ORFeome[n - 1]].ToString()
+                                            + SeqParser.CodonToAmino[codon].ToString();
 
                                 this.AminoAcidsPairs.Add(aminoPair);
                             }
@@ -139,19 +140,25 @@ namespace CodonOptimizer.Classes
                         this.Codons.Add(codon);
 
                         //adding amino acids
-                        amino = SeqParser.CodonsToAmino[codon].ToString();
+                        amino = SeqParser.CodonToAmino[codon].ToString();
                         this.AminoAcids.Add(amino);
                     }
+                    else { stop++; }
                     n++;
                 }
             }
+            Console.WriteLine(stop);
         }
 
+        /// <summary>
+        /// elemCounter method
+        /// method for counting elements (codons, codon pairs, aminos, amino pairs) in lists
+        /// </summary>
         internal void elemCounter()
         {
 
             // sequencesToList method initialization
-            seqencesToList();
+            sequencesToList();
 
             // counting elements to dictionaries
             CodonPairCounts = CodonPairs.GroupBy(i => i)
@@ -206,9 +213,10 @@ namespace CodonOptimizer.Classes
 
 
         /// <summary>
-        /// CPS counter
+        /// CPScounter method
+        /// method for calculating CPS
         /// </summary>
-        internal void countCPS(object o, DoWorkEventArgs args)
+        internal void CPScalculator(object o, DoWorkEventArgs args)
         {
             // temporary variables
             string aminoPair;
@@ -231,58 +239,45 @@ namespace CodonOptimizer.Classes
             // fy - frequency of second amino acid
             int fab = 0, fxy = 0, fa = 0, fb = 0, fx = 0, fy = 0;
 
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/CPSvariables.txt"))
+            foreach (var cp in CodonPairCounts)
             {
-                foreach (var cp in CodonPairCounts)
-                {
-                    Thread.Sleep(10);
-                    (o as BackgroundWorker).ReportProgress(100 * counter / (CodonPairCounts.Count - 1));
+                // thread handling
+                Thread.Sleep(10);
+                (o as BackgroundWorker).ReportProgress(100 * counter / (CodonPairCounts.Count - 1));
 
-                    // writing fab to file
-                    //outFile.WriteLine(cp.Key + " " + cp.Value);
+                // fab definition 
+                fab = cp.Value;
 
-                    // fab definition 
-                    fab = cp.Value;
+                codonPair = cp.Key.ToString();
+                aminoPair = SeqParser.CodonToAmino[codonPair.Substring(0, 3)].ToString() + SeqParser.CodonToAmino[codonPair.Substring(3, 3)].ToString();
 
-                    codonPair = cp.Key.ToString();
-                    aminoPair = SeqParser.CodonsToAmino[codonPair.Substring(0, 3)].ToString() + SeqParser.CodonsToAmino[codonPair.Substring(3, 3)].ToString();
+                // fxy definition
+                fxy = AminoAcidPairCounts[aminoPair];
 
-                    // fxy definition
-                    fxy = AminoAcidPairCounts[aminoPair];
+                // codons substrings
+                c1 = codonPair.Substring(0, 3).ToString();
+                c2 = codonPair.Substring(3, 3).ToString();
 
-                    // codons substrings
-                    c1 = codonPair.Substring(0, 3).ToString();
-                    c2 = codonPair.Substring(3, 3).ToString();
+                // fa, fb definition
 
-                    // fa, fb definition
+                fa = CodonCounts[c1];
+                fb = CodonCounts[c2];
 
-                    fa = CodonCounts[c1];
-                    fb = CodonCounts[c2];
+                // fx, fy definition
 
-                    // fx, fy definition
+                fx = AminoAcidCounts[SeqParser.CodonToAmino[c1].ToString()];
+                fy = AminoAcidCounts[SeqParser.CodonToAmino[c2].ToString()];
 
-                    fx = AminoAcidCounts[SeqParser.CodonsToAmino[c1].ToString()];
-                    fy = AminoAcidCounts[SeqParser.CodonsToAmino[c2].ToString()];
-
-                    // writing fxy, fx, fy, fa, fb fo file 
-                    //outFile.WriteLine("fxy" + fxy);
-                    //outFile.WriteLine("fx" + fx);
-                    //outFile.WriteLine("fa" + fa);
-                    //outFile.WriteLine("fy" + fy);
-                    //outFile.WriteLine("fb" + fb + "\n");
-
-                    // CPS counting
-                    CPScore = Math.Log((double)fab / ((((double)fa * (double)fb) / ((double)fx * (double)fy)) * (double)fxy));
-                    CPS.Add(codonPair, CPScore);
-                    counter++;
-                }
+                // CPS counting
+                CPScore = Math.Log((double)fab / ((((double)fa * (double)fb) / ((double)fx * (double)fy)) * (double)fxy));
+                CPS.Add(codonPair, CPScore);
+                counter++;
             }
 
             // CPS to file CPScores
             using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/CPScores.txt"))
             {
                 int n = 1;
-
                 foreach (KeyValuePair<string, double> cps in CPS)
                 {
                     outFile.WriteLine(n + ". " + cps.Key + " " + cps.Value);

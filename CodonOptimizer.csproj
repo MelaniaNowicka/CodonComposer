@@ -82,8 +82,8 @@
     <Compile Include="Pages\HowToUse.xaml.cs">
       <DependentUpon>HowToUse.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Optimalization.xaml.cs">
-      <DependentUpon>Optimalization.xaml</DependentUpon>
+    <Compile Include="Pages\Optimization.xaml.cs">
+      <DependentUpon>Optimization.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Page Include="Pages\CCranking.xaml">
@@ -94,7 +94,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\Optimalization.xaml">
+    <Page Include="Pages\Optimization.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

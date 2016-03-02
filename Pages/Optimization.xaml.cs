@@ -68,15 +68,15 @@ namespace CodonOptimizer.Pages
             {
                 string file = openFileDialog.FileName; // file handler
 
-                // parseORF method initialization
-                //ORF.parseORF(file);
-
+                // sequenceParser method initialization
                 var tupleTemp = SeqParser.sequenceParser(file);
                 ORF.ORFseq = tupleTemp.Item1;
                 int count = 1;
 
+                // DataTable declaration
                 DataTable Data = new DataTable();
 
+                // codonToAminoParser method initialization
                 List<string> aminos = SeqParser.codonToAminoParser(ORF.ORFseq);
 
                 foreach (var k in aminos)
@@ -88,8 +88,10 @@ namespace CodonOptimizer.Pages
                 Data.Rows.Add(ORF.ORFseq.ToArray());
                 Data.Rows.Add(aminos.ToArray());
 
-                BeforeOptimalizationDataGrid.ItemsSource = Data.DefaultView;
+                // 
+                BeforeOptimizationDataGrid.ItemsSource = Data.DefaultView;
 
+                // CPBcalculator method initialization
                 CPBscoreTextBox.Text = ORF.CPBcalculator().ToString();
             }
             else

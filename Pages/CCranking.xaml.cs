@@ -27,7 +27,6 @@ namespace CodonOptimizer.Pages
     {
         public CCranking()
         {
-            CCranker = new CCranker();
             InitializeComponent();
         }
 
@@ -67,7 +66,8 @@ namespace CodonOptimizer.Pages
         {
             // richTextBox cleaning
             ORFeomeInfoRichTextBox.Document.Blocks.Clear();
-            
+            CCranker = new CCranker();
+
             // openFileDialog method initialization
             initializeOpenFileDialog();
 
@@ -78,6 +78,7 @@ namespace CodonOptimizer.Pages
             {
                 string file = openFileDialog.FileName; // file handler
 
+                // sequenceParser method initialization
                 var tupleTemp = SeqParser.sequenceParser(file);
 
                 CCranker.ORFeome = tupleTemp.Item1;
@@ -86,7 +87,7 @@ namespace CodonOptimizer.Pages
                 // adding information to ORFeomeInfoRichTextBox
                 if (CCranker.CDScount != 0)
                 {
-                    ORFeomeInfoRichTextBox.AppendText("Number of CDSs: " + CCranker.CDScount);
+                    ORFeomeInfoRichTextBox.AppendText(CCranker.CDScount.ToString());
                 }
             }
             else
@@ -119,7 +120,7 @@ namespace CodonOptimizer.Pages
                 CCranker.Path = folderBrowserDialog.SelectedPath;
 
                 // background worker initialization, CPR counter initialization
-                worker.DoWork += new DoWorkEventHandler(CCranker.countCPS);
+                worker.DoWork += new DoWorkEventHandler(CCranker.CPScalculator);
                 worker.ProgressChanged += new ProgressChangedEventHandler(worker_ProgressChanged);
                 worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(worker_RunWorkerCompleted);
                 worker.WorkerReportsProgress = true;
@@ -137,17 +138,10 @@ namespace CodonOptimizer.Pages
                 string message = "Something went wrong. It is necessary to select files directory before codon context ranking computing. Try again. \nFor more information about using Codon Context Ranking check the \"How to use\" page.";
                 ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
             }
-            //int n = 1;
-
-            /*foreach (KeyValuePair<string, double> cps in CCranking.CPS)
-            {
-                CPSRichTextBox.AppendText(n + ". " + cps.Key + ": " + cps.Value + "\n");
-                n++;
-            }*/
         }
 
         /// <summary>
-        /// Progress Changed handler
+        /// ProgressChanged handler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -157,7 +151,7 @@ namespace CodonOptimizer.Pages
         }
 
         /// <summary>
-        /// Run Worker Completed handler
+        /// RunWorkerCompleted handler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

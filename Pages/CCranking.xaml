@@ -7,16 +7,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
 
-    <Grid Style="{StaticResource ContentRoot}">
+    <Grid Margin ="0 50 0 0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button Name="AddORFeomeButton" Content="Add ORFeome" Grid.Column="0" Width="150" Height="30" Margin="0,0,0,30" Click="addORFeomeButton_Click">
+        <Button Name="AddORFeomeButton" Content="Add ORFeome" Grid.Column="0" Width="150" Height="30" Margin="20,10,446,410" Click="addORFeomeButton_Click">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -26,7 +24,7 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <RichTextBox Name="ORFeomeInfoRichTextBox" Grid.Row ="0" Grid.Column="1" HorizontalAlignment="Left" Height="50" Margin="25,0,0,0" VerticalAlignment="Top" Width="550" IsReadOnly="True" BorderThickness="1" Background="{x:Null}">
+        <RichTextBox Name="ORFeomeInfoRichTextBox" Grid.Row ="0" Grid.Column="0" HorizontalAlignment="Left" Height="24" Margin="662,16,-95,0" VerticalAlignment="Top" Width="58" IsReadOnly="True" BorderThickness="1" Background="{x:Null}" RenderTransformOrigin="0.48,0.333" Block.TextAlignment="Right">
             <FlowDocument>
                 <Paragraph>
                     <Run x:Name="InfoRichTextBox"/>
@@ -41,7 +39,7 @@
                 </ToolTip>
             </RichTextBox.ToolTip>
         </RichTextBox>
-        <Button Name="CCrankButton" Content="Calculate codon context rank" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="550" Height="50" Margin="25,10,0,0" Click="CCrankButton_Click">
+        <Button Name="CCrankButton" Content="Calculate codon context rank" HorizontalAlignment="Left" VerticalAlignment="Top" Width="700" Height="50" Margin="20,75,-185,0" Click="CCrankButton_Click">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>
@@ -51,7 +49,7 @@
                 </ToolTip>
             </Button.ToolTip>
         </Button>
-        <RichTextBox Name ="CPSRichTextBox"  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="314" Width="550" Margin="25,120,0,0" VerticalAlignment="Top" IsReadOnly="True" BorderThickness="1" Background="{x:Null}">
+        <RichTextBox Name ="CPSRichTextBox"  Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Height="314" Width="700" Margin="20,183,-183,-48" VerticalAlignment="Top" IsReadOnly="True" BorderThickness="1" Background="{x:Null}">
             <RichTextBox.BindingGroup>
                 <BindingGroup/>
             </RichTextBox.BindingGroup>
@@ -61,7 +59,7 @@
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
-        <ProgressBar Name ="CCProgressBar" Grid.Column="1" HorizontalAlignment="Left" Height="9" Margin="25,90,0,0" Grid.Row="1" VerticalAlignment="Top" Width="550">
+        <ProgressBar Name ="CCProgressBar" Grid.Column="0" HorizontalAlignment="Left" Height="8" Margin="20,153,-179,0" VerticalAlignment="Top" Width="700">
             <ProgressBar.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleY="-1"/>
@@ -71,5 +69,7 @@
                 </TransformGroup>
             </ProgressBar.RenderTransform>
         </ProgressBar>
+        <Label Content="CDS's:" HorizontalAlignment="Left" Margin="605,16,-30,0" VerticalAlignment="Top" Height="24
+               " Width="52" FontSize="15" FontWeight="Bold"/>
     </Grid>
 </UserControl>
