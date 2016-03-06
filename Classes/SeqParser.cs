@@ -156,7 +156,7 @@ namespace CodonOptimizer.Classes
                         // adding codon substrings
                         for (int i = 0; i < seqTemp.Length - 2; i += 3)
                         {
-                            list.Add(seqTemp.Substring(i, 3));
+                            list.Add(seqTemp.Substring(i, 3).ToUpper());
                         }
                     }
                 }

@@ -37,6 +37,7 @@
     <Reference Include="FirstFloor.ModernUI">
       <HintPath>..\packages\ModernUI.WPF.1.0.6\lib\net45\FirstFloor.ModernUI.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
@@ -70,6 +71,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Classes\CCranker.cs" />
+    <Compile Include="Classes\Optimizer.cs" />
     <Compile Include="Classes\ORF.cs" />
     <Compile Include="Classes\SeqParser.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -85,6 +87,9 @@
     <Compile Include="Pages\Optimization.xaml.cs">
       <DependentUpon>Optimization.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Parameters.xaml.cs">
+      <DependentUpon>Parameters.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Page Include="Pages\CCranking.xaml">
       <SubType>Designer</SubType>
@@ -95,6 +100,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Optimization.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Parameters.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

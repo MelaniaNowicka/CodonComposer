@@ -29,6 +29,7 @@ namespace CodonOptimizer.Classes
         {
             CDScount = 0;
             ORFeome = new List<string>();
+            CPS = new Dictionary<string, double>();
         }
 
         /// <summary>
@@ -277,11 +278,15 @@ namespace CodonOptimizer.Classes
             // CPS to file CPScores
             using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/CPScores.txt"))
             {
-                int n = 1;
-                foreach (KeyValuePair<string, double> cps in CPS)
+                using (System.IO.StreamWriter outFileCSV = new System.IO.StreamWriter(Path + @"/CCranking.csv"))
                 {
-                    outFile.WriteLine(n + ". " + cps.Key + " " + cps.Value);
-                    n++;
+                    int n = 1;
+                    foreach (KeyValuePair<string, double> cps in CPS)
+                    {
+                        outFile.WriteLine(n + ". " + cps.Key + " " + cps.Value);
+                        outFileCSV.WriteLine(cps.Key + ";" + cps.Value + ";");
+                        n++;
+                    }
                 }
             }
         }

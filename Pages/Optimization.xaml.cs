@@ -15,24 +15,37 @@ using System.Windows.Shapes;
 using CodonOptimizer.Classes;
 using FirstFloor.ModernUI.Windows.Controls;
 using System.Data;
+using System.IO;
+using Microsoft.VisualBasic.FileIO;
 
 namespace CodonOptimizer.Pages
 {
     /// <summary>
     /// Interaction logic for Optimalization.xaml
     /// </summary>
-    public partial class Optimalization : UserControl
+    public partial class Optimization : UserControl
     {
-        public Optimalization()
+        public Optimization()
         {
             ORF = new ORF();
+            Optimizer = new Optimizer();
             InitializeComponent();
         }
 
         /// <summary>
-        /// CCranking object
+        /// ORF object
         /// </summary>
-        internal static ORF ORF { get; set; }
+        internal ORF ORF { get; set; }
+
+        /// <summary>
+        /// Optimizer object
+        /// </summary>
+        internal Optimizer Optimizer { get; set; }
+
+        /// <summary>
+        /// A string of extensions for initializeOpenFileDialog method
+        /// </summary>
+        string extensions;
 
         /// <summary>
         /// OpenFileDialog object
@@ -42,13 +55,39 @@ namespace CodonOptimizer.Pages
         /// <summary>
         /// OpenFileDialog initialization method
         /// </summary>
-        private void initializeOpenFileDialog()
+        private void initializeOpenFileDialog(string ext)
         {
             this.openFileDialog = new Microsoft.Win32.OpenFileDialog();
             this.openFileDialog.FileName = ""; // default file name
-            this.openFileDialog.Filter = "Fasta files|*.fa;*.fas;*.fasta"; // filter files by extension
+            this.openFileDialog.Filter = ext; // filter files by extension
             this.openFileDialog.Multiselect = false; // Only one file
             this.openFileDialog.Title = "Open ORFeome file..."; // title text
+        }
+
+        /// <summary>
+        /// Creating datagrid view for sequence data
+        /// </summary>
+        private void sequenceToDataGrid(List<string> DNASeq, List<string> AminoSeq, DataGrid dataGrid, TextBox textBox)
+        {
+            int count = 1;
+
+            // DataTable declaration
+            DataTable Data = new DataTable();
+
+            foreach (var k in AminoSeq)
+            {
+                Data.Columns.Add(new DataColumn(count.ToString()));
+                count++;
+            }
+
+            Data.Rows.Add(DNASeq.ToArray());
+            Data.Rows.Add(AminoSeq.ToArray());
+
+            // 
+            dataGrid.ItemsSource = Data.DefaultView;
+
+            // CPBcalculator method initialization
+            textBox.Text = ORF.CPBcalculator(DNASeq).ToString();
         }
 
         /// <summary>
@@ -58,10 +97,12 @@ namespace CodonOptimizer.Pages
         /// <param name="e"></param>
         private void LoadORFButton_Click(object sender, RoutedEventArgs e)
         {
+            // extensions setting
+            extensions = "Fasta files|*.fa;*.fas;*.fasta";
             // openFileDialog method initialization
-            initializeOpenFileDialog();
+            initializeOpenFileDialog(extensions);
 
-             // show openFileDialog file dialog
+            // show openFileDialog file dialog
             Nullable<bool> openResult = openFileDialog.ShowDialog();
 
             if (openResult == true)
@@ -70,29 +111,12 @@ namespace CodonOptimizer.Pages
 
                 // sequenceParser method initialization
                 var tupleTemp = SeqParser.sequenceParser(file);
-                ORF.ORFseq = tupleTemp.Item1;
-                int count = 1;
-
-                // DataTable declaration
-                DataTable Data = new DataTable();
-
+                ORF.ORFSeq = tupleTemp.Item1;
                 // codonToAminoParser method initialization
-                List<string> aminos = SeqParser.codonToAminoParser(ORF.ORFseq);
+                ORF.AminoORFseq = SeqParser.codonToAminoParser(ORF.ORFSeq);
 
-                foreach (var k in aminos)
-                {
-                    Data.Columns.Add(new DataColumn(count.ToString()));
-                    count++;
-                }
-
-                Data.Rows.Add(ORF.ORFseq.ToArray());
-                Data.Rows.Add(aminos.ToArray());
-
-                // 
-                BeforeOptimizationDataGrid.ItemsSource = Data.DefaultView;
-
-                // CPBcalculator method initialization
-                CPBscoreTextBox.Text = ORF.CPBcalculator().ToString();
+                // sequence to data grid
+                sequenceToDataGrid(ORF.ORFSeq, ORF.AminoORFseq, BeforeOptimizationDataGrid, CPBscoreTextBox);
             }
             else
             {
@@ -100,6 +124,40 @@ namespace CodonOptimizer.Pages
                 string message = "Something went wrong. Probably you tried to use an improper file. Try again. \nFor more information about using Optimalizator check the \"How to use\" page.";
                 ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
             }
+        }
+
+        private void UploadRankingButton_Click(object sender, RoutedEventArgs e)
+        {
+            // extensions setting
+            extensions = "CSV files|*.csv";
+            // openFileDialog method initialization
+            initializeOpenFileDialog(extensions);
+
+            // show openFileDialog file dialog
+            Nullable<bool> openResult = openFileDialog.ShowDialog();
+
+            if (openResult == true)
+            {
+                string file = openFileDialog.FileName; // file handler
+                using (TextFieldParser parser = new TextFieldParser(openFileDialog.InitialDirectory + openFileDialog.FileName))
+                {
+                    CCranking.CCranker = new CCranker();
+                    parser.SetDelimiters(new string[] { ";" });
+
+                    while (!parser.EndOfData)
+                    {
+                        string[] fields = parser.ReadFields();
+                        CCranking.CCranker.CPS.Add(fields[0], Convert.ToDouble(fields[1]));
+
+                    }
+                }
+            }
+        }
+
+        private void OptimizeORFButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> OptimalizedORF = Optimizer.optimizeORF(ORF.ORFSeq, ORF.AminoORFseq);
+            sequenceToDataGrid(OptimalizedORF, ORF.AminoORFseq, AfterOptimalizationDataGrid, NewCPBscoreTextBox);
         }
 
     }

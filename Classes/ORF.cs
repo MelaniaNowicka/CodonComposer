@@ -13,47 +13,50 @@ using CodonOptimizer.Pages;
 
 namespace CodonOptimizer.Classes
 {
-    class ORF
+    public class ORF
     {
-
         public ORF()
         {
-            ORFseq = new List<string>();
+            ORFSeq = new List<string>();
+            AminoORFseq = new List<string>();
         }
 
         /// <summary>
-        /// List of ORF
+        /// ORF list of codons 
         /// </summary>
-        internal List<string> ORFseq;
+        public List<string> ORFSeq;
+
+        /// <summary>
+        /// ORF list of mino acids
+        /// </summary>
+        public List<string> AminoORFseq;
 
         /// <summary>
         /// CPB score
         /// </summary>
-        internal double CPB;
+        public static double CPB;
 
         /// <summary>
         /// CPBcalculator method
         /// method for CPB calculating
         /// </summary>
         /// <returns></returns>
-        internal double CPBcalculator()
+        public static double CPBcalculator(List<string> orf)
         {
             CPB = 0;
             int n = 0; 
-            foreach (string codon in ORFseq)
+            foreach (string codon in orf)
             {
                 if (n != 0 && codon != "TGA" && codon != "TAA" && codon != "TAG")
                 {
-                    CPB += CCranking.CCranker.CPS[ORFseq[n-1]+codon];
+                    CPB += CCranking.CCranker.CPS[orf[n-1]+codon];
                 }
                 n++;
             }
 
-            CPB = CPB / (ORFseq.Count - 1);
+            CPB = CPB / (orf.Count - 1);
 
             return Math.Round(CPB, 4);
         }
-
-  
     }
 }
