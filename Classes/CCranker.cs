@@ -32,6 +32,7 @@ namespace CodonOptimizer.Classes
             CPS = new Dictionary<string, double>();
         }
 
+        #region GLOBAL VARIABLES
         /// <summary>
         /// ORFeome from file to list
         /// </summary>
@@ -68,9 +69,14 @@ namespace CodonOptimizer.Classes
         internal Dictionary<string, double> CPS;
 
         /// <summary>
+        /// CC ranking file name
+        /// </summary>
+        public string fileName;
+
+        /// <summary>
         /// Path for saving files
         /// </summary>
-        internal string Path;
+        public string path;
 
         /// <summary>
         /// Dictionary CodonPairCounts declaration
@@ -91,7 +97,9 @@ namespace CodonOptimizer.Classes
         /// Dictionary AminoAcidCounts declaration
         /// </summary>
         Dictionary<string, int> AminoAcidCounts;
+        #endregion
 
+        #region METHODS
         /// <summary>
         /// SequencesToList method 
         /// </summary>
@@ -109,9 +117,6 @@ namespace CodonOptimizer.Classes
             AminoAcids = new List<string>();
             int stop = 0;
 
-            // writing to file
-            using (System.IO.StreamWriter outSeq = new System.IO.StreamWriter(Path + @"/sequences.txt"))
-            {
                 foreach (string codon in this.ORFeome)
                 {
                     // stop codons elimination
@@ -130,8 +135,8 @@ namespace CodonOptimizer.Classes
                                 this.CodonPairs.Add(ORFeome[n - 1] + codon);
 
                                 // adding amino acids pairs
-                                aminoPair = SeqParser.CodonToAmino[ORFeome[n - 1]].ToString()
-                                            + SeqParser.CodonToAmino[codon].ToString();
+                                aminoPair = SeqParser.codonToAmino[ORFeome[n - 1]].ToString()
+                                            + SeqParser.codonToAmino[codon].ToString();
 
                                 this.AminoAcidsPairs.Add(aminoPair);
                             }
@@ -141,21 +146,19 @@ namespace CodonOptimizer.Classes
                         this.Codons.Add(codon);
 
                         //adding amino acids
-                        amino = SeqParser.CodonToAmino[codon].ToString();
+                        amino = SeqParser.codonToAmino[codon].ToString();
                         this.AminoAcids.Add(amino);
                     }
                     else { stop++; }
                     n++;
                 }
-            }
-            Console.WriteLine(stop);
         }
 
         /// <summary>
         /// elemCounter method
         /// method for counting elements (codons, codon pairs, aminos, amino pairs) in lists
         /// </summary>
-        internal void elemCounter()
+        public void elemCounter()
         {
 
             // sequencesToList method initialization
@@ -175,7 +178,7 @@ namespace CodonOptimizer.Classes
                 .ToDictionary(i => i.Key, i => i.Count());
 
             // codon pairs counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/cpCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/cpCounts.txt"))
             {
                 foreach (var cp in CodonPairCounts)
                 {
@@ -184,7 +187,7 @@ namespace CodonOptimizer.Classes
             }
 
             // amino acid pairs counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/apCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/apCounts.txt"))
             {
                 foreach (var cp in AminoAcidPairCounts)
                 {
@@ -193,7 +196,7 @@ namespace CodonOptimizer.Classes
             }
 
             // codons counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/cCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/cCounts.txt"))
             {
                 foreach (var cp in CodonCounts)
                 {
@@ -202,7 +205,7 @@ namespace CodonOptimizer.Classes
             }
 
             // amino acids counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/aaCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/aaCounts.txt"))
             {
                 foreach (var cp in AminoAcidCounts)
                 {
@@ -212,12 +215,11 @@ namespace CodonOptimizer.Classes
 
         }
 
-
         /// <summary>
         /// CPScounter method
         /// method for calculating CPS
         /// </summary>
-        internal void CPScalculator(object o, DoWorkEventArgs args)
+        public void CPScalculator(object o, DoWorkEventArgs args)
         {
             // temporary variables
             string aminoPair;
@@ -243,14 +245,14 @@ namespace CodonOptimizer.Classes
             foreach (var cp in CodonPairCounts)
             {
                 // thread handling
-                Thread.Sleep(10);
+                Thread.Sleep(1);
                 (o as BackgroundWorker).ReportProgress(100 * counter / (CodonPairCounts.Count - 1));
 
                 // fab definition 
                 fab = cp.Value;
 
                 codonPair = cp.Key.ToString();
-                aminoPair = SeqParser.CodonToAmino[codonPair.Substring(0, 3)].ToString() + SeqParser.CodonToAmino[codonPair.Substring(3, 3)].ToString();
+                aminoPair = SeqParser.codonToAmino[codonPair.Substring(0, 3)].ToString() + SeqParser.codonToAmino[codonPair.Substring(3, 3)].ToString();
 
                 // fxy definition
                 fxy = AminoAcidPairCounts[aminoPair];
@@ -266,8 +268,8 @@ namespace CodonOptimizer.Classes
 
                 // fx, fy definition
 
-                fx = AminoAcidCounts[SeqParser.CodonToAmino[c1].ToString()];
-                fy = AminoAcidCounts[SeqParser.CodonToAmino[c2].ToString()];
+                fx = AminoAcidCounts[SeqParser.codonToAmino[c1].ToString()];
+                fy = AminoAcidCounts[SeqParser.codonToAmino[c2].ToString()];
 
                 // CPS counting
                 CPScore = Math.Log((double)fab / ((((double)fa * (double)fb) / ((double)fx * (double)fy)) * (double)fxy));
@@ -276,9 +278,9 @@ namespace CodonOptimizer.Classes
             }
 
             // CPS to file CPScores
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(Path + @"/CPScores.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/CPScores.txt"))
             {
-                using (System.IO.StreamWriter outFileCSV = new System.IO.StreamWriter(Path + @"/CCranking.csv"))
+                using (System.IO.StreamWriter outFileCSV = new System.IO.StreamWriter(fileName + @".csv"))
                 {
                     int n = 1;
                     foreach (KeyValuePair<string, double> cps in CPS)
@@ -290,5 +292,7 @@ namespace CodonOptimizer.Classes
                 }
             }
         }
+
+        #endregion
     }
 }

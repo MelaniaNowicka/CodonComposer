@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CodonOptimizer.Classes
@@ -17,25 +19,42 @@ namespace CodonOptimizer.Classes
             rnd = new Random();
         }
 
+        #region GLOBAL VARIABLES
+        /// <summary>
+        /// Optimization mode (1 - maximalization, 0 - minimalization)
+        /// </summary>
+        public static int optimizationMode { get; set; }
+
         /// <summary>
         /// Population size
         /// </summary>
-        private int PopulationSize = 10;
+        public static int PopulationSize { get; set; }
 
         /// <summary>
         /// Number of reproductive cycles
         /// </summary>
-        private int ReproductiveCyclesNumber = 10;
+        public static int ReproductiveCyclesNumber { get; set; }
 
         /// <summary>
         /// Probability of mutation
         /// </summary>
-        private float MutationProbability;
+        public static float MutationProbability { get; set; }
 
         /// <summary>
         /// Probability of crossover
         /// </summary>
-        private float CrossoverProbability;
+        public static float CrossoverProbability { get; set; }
+
+        /// <summary>
+        /// Size of tournament
+        /// </summary>
+        public static int TournamentSize { get; set; }
+
+        /// <summary>
+        /// Additional stop criterion 
+        /// (a number of reproduction cycles ehich not generate improvement)
+        /// </summary>
+        public static int StopCriterion { get; set; }
 
         /// <summary>
         /// Population of individuals
@@ -79,6 +98,9 @@ namespace CodonOptimizer.Classes
 
         System.IO.StreamWriter outSeq;
 
+        #endregion
+
+        #region METHODS
         /// <summary>
         /// Method for grouping codons by amino acid
         /// (key: amino acid, values: list of sysnonymous codons)
@@ -86,7 +108,7 @@ namespace CodonOptimizer.Classes
         private void aminoToCodon()
         {
             codonGroups = new Dictionary<string, List<string>>();
-            codonGroups = SeqParser.CodonToAmino.GroupBy(x => x.Value)
+            codonGroups = SeqParser.codonToAmino.GroupBy(x => x.Value)
                 .ToDictionary(x => x.Key, x => x.Select(i => i.Key).ToList());
         }
 
@@ -103,12 +125,51 @@ namespace CodonOptimizer.Classes
         }
 
         /// <summary>
+        /// method for updating best individual and best score
+        /// </summary>
+        private void updateBestIndividual()
+        {
+            // for function maximalization
+            if (optimizationMode == 1)
+            {
+                for (int i = 0; i < PopulationScores.Count(); i++)
+                {
+                    if (PopulationScores[i] > BestScore)
+                    {
+                        BestScore = PopulationScores[i];
+                        BestIndividual.Clear();
+                        foreach (string c in Population[i])
+                        {
+                            BestIndividual.Add(c);
+                        }
+                    }
+                }
+            }
+            // for function minimalization
+            if (optimizationMode == 0)
+            {
+                for (int i = 0; i < PopulationScores.Count(); i++)
+                {
+                    if (PopulationScores[i] < BestScore)
+                    {
+                        BestScore = PopulationScores[i];
+                        BestIndividual.Clear();
+                        foreach (string c in Population[i])
+                        {
+                            BestIndividual.Add(c);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Method for generation of initial population
         /// </summary>
         /// <param name="AminoORFseq"></param>
-        private void generateInitialPopulation(List<string> AminoORFseq, System.IO.StreamWriter outSeq)
+        private void generateInitialPopulation(List<string> AminoORFseq, string stopCodon, System.IO.StreamWriter outSeq)
         {
-            outSeq.WriteLine("====INITIAL POPULATION====");
+            //outSeq.WriteLine("====INITIAL POPULATION====");
             // new population of individuals and scores initialization, new best individual initialization
             Population = new List<List<string>>();
             PopulationScores = new List<double>();
@@ -126,8 +187,15 @@ namespace CodonOptimizer.Classes
                 // randomization of codons for given amino acid sequence
                 foreach (string amino in AminoORFseq)
                 {
-                    tempCodon = randomizeCodon(amino);
-                    tempIndividual.Add(tempCodon);
+                    if (amino != "/")
+                    {
+                        tempCodon = randomizeCodon(amino);
+                        tempIndividual.Add(tempCodon);
+                    }
+                    else
+                    {
+                        tempIndividual.Add(stopCodon);
+                    }
                 }
 
                 // adding new individual to population
@@ -135,12 +203,12 @@ namespace CodonOptimizer.Classes
                 // calculation of score for nex individual 
                 PopulationScores.Add(ORF.CPBcalculator(tempIndividual));
 
-                foreach (string c in tempIndividual)
+                /*foreach (string c in tempIndividual)
                 {
                     outSeq.Write(c + " ");
                 }
                 outSeq.WriteLine(PopulationScores.Last());
-                outSeq.WriteLine();
+                outSeq.WriteLine();*/
             }
 
             BestScore = PopulationScores[0];
@@ -172,8 +240,6 @@ namespace CodonOptimizer.Classes
                     // randomization of current individual
                     IndividualIdx = rnd.Next(0, PopulationSize);
 
-                    //Console.Write(IndividualIdx + " (" + PopulationScores[IndividualIdx] + ") ");
-
                     // setting first best score
                     if (j == 0)
                     {
@@ -182,9 +248,21 @@ namespace CodonOptimizer.Classes
                     // checking if current individual score is better than current the best
                     else
                     {
-                        if (PopulationScores[IndividualIdx] > PopulationScores[BestIndividualIdx])
+                        // optimization mode
+                        if (optimizationMode == 1)
                         {
-                            BestIndividualIdx = IndividualIdx;
+                            if (PopulationScores[IndividualIdx] > PopulationScores[BestIndividualIdx])
+                            {
+                                BestIndividualIdx = IndividualIdx;
+                            }
+                        }
+                        // deoptimization mode
+                        if (optimizationMode == 0)
+                        {
+                            if (PopulationScores[IndividualIdx] < PopulationScores[BestIndividualIdx])
+                            {
+                                BestIndividualIdx = IndividualIdx;
+                            }
                         }
                     }
 
@@ -199,19 +277,19 @@ namespace CodonOptimizer.Classes
             // clearing current population
             Population.Clear();
             PopulationScores.Clear();
-            outSeq.WriteLine();
-            outSeq.WriteLine("====SELECTED POPULATION====");
+            //outSeq.WriteLine();
+            //outSeq.WriteLine("====SELECTED POPULATION====");
             // setting new selected population as current population
             for (int i = 0; i < PopulationSize; i++)
             {
                 Population.Add(NewPopulation[i]);
                 PopulationScores.Add(NewPopulationScores[i]);
-                foreach (string c in Population.Last())
+                /*foreach (string c in Population.Last())
                 {
                     outSeq.Write(c + " ");
                 }
                 outSeq.WriteLine(PopulationScores.Last());
-                outSeq.WriteLine();
+                outSeq.WriteLine();*/
             }
         }
 
@@ -220,8 +298,8 @@ namespace CodonOptimizer.Classes
         /// </summary>
         private void crossover(System.IO.StreamWriter outSeq)
         {
-            outSeq.WriteLine();
-            outSeq.WriteLine("====CROSSOVER====");
+            //outSeq.WriteLine();
+            //outSeq.WriteLine("====CROSSOVER====");
             // temporary variables
             // first parent and second parent indexes
             int FirstParentIdx, SecondParentIdx;
@@ -235,18 +313,37 @@ namespace CodonOptimizer.Classes
             //clearing new population and scores
             NewPopulation.Clear();
             NewPopulationScores.Clear();
+            double end;
+
+            if (Math.Round(PopulationSize * CrossoverProbability) % 2 != 0)
+            {
+                end = PopulationSize - Math.Round(PopulationSize * CrossoverProbability) + 1;
+            }
+            else
+            {
+                end = PopulationSize - Math.Round(PopulationSize * CrossoverProbability);
+            }
+
+            for (int i = 0; i < end; i++)
+            {
+                FirstParentIdx = rnd.Next(0, Population.Count());
+                NewPopulation.Add(Population[FirstParentIdx]);
+                NewPopulationScores.Add(PopulationScores[FirstParentIdx]);
+                Population.RemoveAt(FirstParentIdx);
+                PopulationScores.RemoveAt(FirstParentIdx);
+            }
 
             // randomization of parents for cross over
-            for (int i = 0; i < PopulationSize / 2; i++)
+            for (int i = 0; i < (PopulationSize - end) / 2; i++)
             {
                 outSeq.WriteLine();
                 FirstParentIdx = rnd.Next(0, Population.Count());
                 SecondParentIdx = rnd.Next(0, Population.Count());
-                outSeq.WriteLine("PARENTS");
-                outSeq.Write("First parent: " + FirstParentIdx + " \n");
-                outSeq.Write("Second parent: " + SecondParentIdx + "\n");
+                //outSeq.WriteLine("PARENTS");
+                //outSeq.Write("First parent: " + FirstParentIdx + " \n");
+                //outSeq.Write("Second parent: " + SecondParentIdx + "\n");
 
-                foreach (string c in Population[FirstParentIdx])
+                /*foreach (string c in Population[FirstParentIdx])
                 {
                     outSeq.Write(c + " ");
                 }
@@ -256,26 +353,26 @@ namespace CodonOptimizer.Classes
                 foreach (string c in Population[SecondParentIdx])
                 {
                     outSeq.Write(c + " ");
-                }
+                }*/
 
-                outSeq.WriteLine();
+                //outSeq.WriteLine();
 
                 // rerandomization if parent index was repeated
                 while (FirstParentIdx == SecondParentIdx)
                 {
                     SecondParentIdx = rnd.Next(0, Population.Count());
-                    outSeq.Write("Second parent again: " + SecondParentIdx + "\n");
+                    //outSeq.Write("Second parent again: " + SecondParentIdx + "\n");
                 }
-                outSeq.WriteLine();
+                //outSeq.WriteLine();
                 // new crossover mask initialization
                 CrossoverMask = new List<int>();
-                outSeq.WriteLine("CROSSOVER MASK");
+                //outSeq.WriteLine("CROSSOVER MASK");
                 for (int x = 0; x < CrossoverMaskSize; x++)
                 {
                     CrossoverMask.Add(rnd.Next(0, 2));
-                    outSeq.Write(CrossoverMask.Last() + "   ");
+                    //outSeq.Write(CrossoverMask.Last() + "   ");
                 }
-                outSeq.WriteLine();
+                //outSeq.WriteLine();
 
                 // new individuals initialization
                 FirstNewIndividual = new List<string>();
@@ -295,9 +392,9 @@ namespace CodonOptimizer.Classes
                         SecondNewIndividual.Add(Population[FirstParentIdx][x]);
                     }
                 }
-                outSeq.WriteLine();
-                outSeq.WriteLine("First new individual");
-                foreach (string c in FirstNewIndividual)
+                //outSeq.WriteLine();
+                //outSeq.WriteLine("First new individual");
+                /*foreach (string c in FirstNewIndividual)
                 {
                     outSeq.Write(c + " ");
                 }
@@ -307,9 +404,9 @@ namespace CodonOptimizer.Classes
                 foreach (string c in SecondNewIndividual)
                 {
                     outSeq.Write(c + " ");
-                }
+                }*/
 
-                outSeq.WriteLine();
+                //outSeq.WriteLine();
 
                 // creating new population with new individuals and new scores
                 NewPopulation.Add(FirstNewIndividual);
@@ -342,10 +439,10 @@ namespace CodonOptimizer.Classes
             // updating best individual
             updateBestIndividual();
 
-            outSeq.WriteLine();
-            outSeq.WriteLine("====AFTER CROSSOVER====");
+            //outSeq.WriteLine();
+            //outSeq.WriteLine("====AFTER CROSSOVER====");
 
-            for (int i = 0; i < PopulationSize; i++)
+            /*for (int i = 0; i < PopulationSize; i++)
             {
                 foreach (string c in Population[i])
                 {
@@ -354,9 +451,7 @@ namespace CodonOptimizer.Classes
 
                 outSeq.WriteLine(PopulationScores[i]);
                 outSeq.WriteLine();
-            }
-
-
+            }*/
         }
 
         /// <summary>
@@ -364,8 +459,8 @@ namespace CodonOptimizer.Classes
         /// </summary>
         private void mutate(List<string> Individual, int IndividualIdx)
         {
-            int codonIdx = rnd.Next(0, Individual.Count());
-            string amino = SeqParser.CodonToAmino[Individual[codonIdx]];
+            int codonIdx = rnd.Next(0, Individual.Count()-1);
+            string amino = SeqParser.codonToAmino[Individual[codonIdx]];
 
             // replacing randomized codon and recalculating of score
             Individual[codonIdx] = randomizeCodon(amino);
@@ -373,61 +468,52 @@ namespace CodonOptimizer.Classes
         }
 
         /// <summary>
-        /// method for updating best individual and best score
+        /// ORF optimization
         /// </summary>
-        private void updateBestIndividual()
+        /// <param name="ORFSeq"></param>
+        /// <param name="AminoORFseq"></param>
+        /// <param name="optimizationMode"></param>
+        /// <returns></returns>
+        public List<string> optimizeORF(List<string> ORFSeq, List<string> AminoORFseq, object o, DoWorkEventArgs e)
         {
-            for (int i = 0; i < PopulationScores.Count(); i++)
-            {
-                if (PopulationScores[i] > BestScore)
-                {
-                    BestScore = PopulationScores[i];
-                    BestIndividual.Clear();
-                    foreach (string c in Population[i])
-                    {
-                        BestIndividual.Add(c);
-                    }
-                }
-            }
-        }
-
-        public List<string> optimizeORF(List<string> ORFSeq, List<string> AminoORFseq)
-        {
+            string stopCodon = ORFSeq.Last();
             using (outSeq = new System.IO.StreamWriter("D:/ga.txt"))
             {
                 // codons grouping to dictionary 
                 aminoToCodon();
 
                 // initial population generation
-                generateInitialPopulation(AminoORFseq, outSeq);
-
+                generateInitialPopulation(AminoORFseq, stopCodon, outSeq);
+                
                 // reproductive cycles
                 for (int i = 0; i < ReproductiveCyclesNumber; i++)
                 {
+                    Thread.Sleep(1);
+                    (o as BackgroundWorker).ReportProgress(100 * i / (ReproductiveCyclesNumber - 1));
                     // selection
-                    selectIndividualsForCrossover(PopulationSize / 2, outSeq);
+                    selectIndividualsForCrossover(TournamentSize, outSeq);
 
                     // crossover
                     crossover(outSeq);
 
                     // mutation
-                    for (int j = 0; j < 10; j++)
+                    for (int j = 0; j < Math.Round(Population.Count * MutationProbability); j++)
                     {
                         // individual randomization 
                         int individual = rnd.Next(0, Population.Count());
                         // codon position randomization
                         int codon = rnd.Next(0, Population[individual].Count());
                         // translation to amino acid
-                        string amino = SeqParser.CodonToAmino[Population[individual][codon]];
+                        string amino = SeqParser.codonToAmino[Population[individual][codon]];
                         // mutation of given codon
                         mutate(Population[individual], individual);
                     }
                 }
 
-                outSeq.WriteLine("====LAST POPULATION====");
+                //outSeq.WriteLine("====LAST POPULATION====");
                 // best score for last population
 
-                for (int i = 0; i < PopulationSize; i++)
+                /*for (int i = 0; i < PopulationSize; i++)
                 {
                     foreach (string c in Population[i])
                     {
@@ -435,7 +521,7 @@ namespace CodonOptimizer.Classes
                     }
                     outSeq.WriteLine();
                     outSeq.WriteLine(PopulationScores[i]);
-                }
+                }*/
 
                 // updating best individual
                 updateBestIndividual();
@@ -443,5 +529,7 @@ namespace CodonOptimizer.Classes
                 return BestIndividual;
             }
         }
+        #endregion
     }
+        
 }

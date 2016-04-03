@@ -30,10 +30,16 @@ namespace CodonOptimizer.Pages
             InitializeComponent();
         }
 
+        #region GLOBAL VARIABLES
         /// <summary>
         /// OpenFileDialog object
         /// </summary>
         private Microsoft.Win32.OpenFileDialog openFileDialog;
+
+        /// <summary>
+        /// SaveFileDialog object
+        /// </summary>
+        private Microsoft.Win32.SaveFileDialog saveFileDialog;
 
         /// <summary>
         /// CCranking object
@@ -43,18 +49,38 @@ namespace CodonOptimizer.Pages
         /// <summary>
         /// Background worker
         /// </summary>
-        internal BackgroundWorker worker = new BackgroundWorker();
+        internal BackgroundWorker worker;
 
         /// <summary>
-        /// OpenFileDialog initialization method
+        /// Flag for checkbox enabling
         /// </summary>
-        private void initializeOpenFileDialog()
+        public static bool currentRankingCheckBoxIsEnabled = false;
+
+        #endregion
+
+        #region METHODS
+        /// <summary>
+        /// openFileDialog initialization method
+        /// </summary>
+        private void openFileDialogInitialize()
         {
             this.openFileDialog = new Microsoft.Win32.OpenFileDialog();
             this.openFileDialog.FileName = ""; // default file name
             this.openFileDialog.Filter = "Fasta files|*.fa;*.fas;*.fasta"; // filter files by extension
             this.openFileDialog.Multiselect = false; // Only one file
             this.openFileDialog.Title = "Open ORFeome file..."; // title text
+        }
+
+        /// <summary>
+        /// saveFileDialog
+        /// </summary>
+        private void saveFileDialogInitialize()
+        {
+            this.saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            this.saveFileDialog.FileName = ""; // default file name
+            this.openFileDialog.Filter = ".csv files|*.csv"; // filter files by extension
+            this.openFileDialog.Multiselect = false; // Only one file
+            this.openFileDialog.Title = "Save ranking file..."; // title text
         }
 
         /// <summary>
@@ -69,7 +95,7 @@ namespace CodonOptimizer.Pages
             CCranker = new CCranker();
 
             // openFileDialog method initialization
-            initializeOpenFileDialog();
+            openFileDialogInitialize();
 
             // show openFileDialog file dialog
             Nullable<bool> openResult = openFileDialog.ShowDialog();
@@ -109,16 +135,19 @@ namespace CodonOptimizer.Pages
             // richTextBox cleaning
             CPSRichTextBox.Document.Blocks.Clear();
             // directory setting
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            DialogResult result = folderBrowserDialog.ShowDialog();
+            saveFileDialogInitialize();
+            Nullable<bool> result = saveFileDialog.ShowDialog();
 
-            if (result == DialogResult.OK)
+            if (result == true)
             {
                 CPSRichTextBox.AppendText("Please, wait a moment for results...\n\n");
+                worker = new BackgroundWorker();
 
                 // setting a path
-                CCranker.Path = folderBrowserDialog.SelectedPath;
-
+                CCranker.fileName = saveFileDialog.FileName;
+                CCranker.path = System.IO.Path.GetDirectoryName(saveFileDialog.FileName);
+                
+                // Background worker settings
                 // background worker initialization, CPR counter initialization
                 worker.DoWork += new DoWorkEventHandler(CCranker.CPScalculator);
                 worker.ProgressChanged += new ProgressChangedEventHandler(worker_ProgressChanged);
@@ -129,8 +158,9 @@ namespace CodonOptimizer.Pages
                 
                 // Elements counter initialization
                 CCranker.elemCounter();
-                CPSRichTextBox.AppendText("Calculating...");
+                CPSRichTextBox.AppendText("Calculating...\n\n");
                 worker.RunWorkerAsync();
+                currentRankingCheckBoxIsEnabled = true;
             }
             else
             {
@@ -161,6 +191,6 @@ namespace CodonOptimizer.Pages
             CPSRichTextBox.AppendText("cCounts - single codon counts\naCounts - single amino acids counts\ncpCounts - codon pair counts\napCounts - amino acid pairs counts\nCPSores - Codon Pair Scores\n");
             CPSRichTextBox.AppendText("For more information, please, check 'How To Use' page\n");
         }
-
+        #endregion
     }
 }

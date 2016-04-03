@@ -12,6 +12,7 @@ namespace CodonOptimizer.Classes
 {
     public static class SeqParser
     {
+        #region GLOBAL VARIABLES
         /// <summary>
         /// ORF parser
         /// </summary>
@@ -20,7 +21,7 @@ namespace CodonOptimizer.Classes
         /// <summary>
         /// Codons to Amino acids dictionary
         /// </summary>
-        public static Dictionary<string, string> CodonToAmino = new Dictionary<string, string>() 
+        public static Dictionary<string, string> codonToAmino = new Dictionary<string, string>() 
         {
             // Phenylalanine
             {"TTT","F"},
@@ -111,6 +112,101 @@ namespace CodonOptimizer.Classes
             {"TAG", "/"}
         };
 
+        public static Dictionary<string, List<string>> enzymesToSequences = new Dictionary<string, List<string>>() 
+        {
+            {"AatII", new List<string>{"GACGTC"}},
+            {"Acc65I",new List<string>{"GGTACC"}},
+            {"AccI",new List<string>{"GTAGAC", "GTCTAC", "GTATAC", "GTCGAC"}},
+            {"AcII",new List<string>{"AACGTT"}},
+            {"AfeI",new List<string>{"AGCGCT"}},
+            {"AflII",new List<string>{"CTTAAG"}},
+            {"AgeI",new List<string>{"ACCGGT"}},
+            {"ApaI",new List<string>{"GGGCCC"}},
+            {"ApaLI",new List<string>{"GTGCAC"}},
+            {"ApoI",new List<string>{"AAATTC", "GAATTT", "AAATTT", "GAATTC"}},
+            {"AscI",new List<string>{"GGCGCGCC"}},
+            {"AseI",new List<string>{"ATTAAT"}},
+            {"AsiSI",new List<string>{"GCGATCGC"}},
+            {"AvrII",new List<string>{"CCTAGG"}},
+            {"BamHI",new List<string>{"GGATCC"}},
+            {"BclI",new List<string>{"TGATCA"}},
+            {"BglII",new List<string>{"AGATCT"}},
+            {"Bme1580I",new List<string>{"GGGCAC", "GTGCCC", "GTGCCC", "GGGCAC"}},
+            {"BmtI",new List<string>{"GCTAGC"}},
+            {"BsaHI",new List<string>{"GACGCC", "GGCGTC", "GACGTC", "GGCGCC"}},
+            {"BsiEI",new List<string>{"CGACCG", "CGGTCG", "CGATCG", "CGGCCG"}},
+            {"BsiWI",new List<string>{"CGTACG"}},
+            {"BspEI",new List<string>{"TCCGGA"}},
+            {"BspHI",new List<string>{"TCATGA"}},
+            {"BsrGI",new List<string>{"TGTACA"}},
+            {"BssHII",new List<string>{"GCGCGC"}},
+            {"BstBI",new List<string>{"TTCGAA"}},
+            {"BstZ17I",new List<string>{"GTATAC"}},
+            {"BtgI",new List<string>{"CCACGG", "CCGTGG", "CCATGG", "CCGCGG"}},
+            {"ClaI",new List<string>{"ATCGAT"}},
+            {"DraI",new List<string>{"TTTAAA"}},
+            {"EaeI",new List<string>{"CGGCCA", "TGGCCG", "CGGCCG", "TGGCCA"}},   
+            {"EagI",new List<string>{"CGGCCG"}},
+            {"EcoRI",new List<string>{"GAATTC"}},
+            {"EcoRV",new List<string>{"GATATC"}},
+            {"FseI",new List<string>{"GGCCGGCC"}},
+            {"FspI",new List<string>{"TGCGCA"}},
+            {"HaeII",new List<string>{"TGCGCA", "GGCGCT", "AGCGCT", "GGCGCC"}},
+            {"HincII",new List<string>{"AGCGCC", "GGCGCT", "AGCGCT", "GGCGCC"}},
+            {"HindIII",new List<string>{"AAGCTT"}},
+            {"HpaI",new List<string>{"GTTAAC"}},
+            {"KasI",new List<string>{"GGCGCC"}},
+            {"KpnI",new List<string>{"GGTACC"}},
+            {"MfeI",new List<string>{"CAATTG"}},
+            {"MluI",new List<string>{"ACGCGT"}},
+            {"MscI",new List<string>{"TGGCCA"}},
+            {"MspA1I",new List<string>{"CAGCGG", "CCGCTG", "CAGCTG", "CCGCGG"}},
+            {"MfeI",new List<string>{"CAATTG"}},
+            {"MluI",new List<string>{"ACGCGT"}},
+            {"MscI",new List<string>{"TGGCCA"}},
+            {"MspA1I",new List<string>{"CAGCGG", "CCGCTG", "CAGCTG", "CCGCGG"}},
+            {"NaeI",new List<string>{"GCCGGC"}},
+            {"NarI",new List<string>{"GGCGCC"}},   
+            {"NcoI",new List<string>{"CCATGG"}},
+            {"NdeI",new List<string>{"CATATG"}},
+            {"NgoMIV",new List<string>{"GCCGGC"}},
+            {"NheI",new List<string>{"GCTAGC"}},
+            {"NotI",new List<string>{"GCGGCCGC"}},
+            {"NruI",new List<string>{"TCGCGA"}},
+            {"NsiI",new List<string>{"ATGCAT"}},
+            {"NspI",new List<string>{"ACATGC", "GCATGT", "ACATGT", "GCATGC"}},
+            {"PacI",new List<string>{"TTAATTAA"}},
+            {"PciI",new List<string>{"ACATGT"}},
+            {"PmeI",new List<string>{"GTTTAAAC"}},
+            {"PmlI",new List<string>{"CACGTG"}},
+            {"PsiI",new List<string>{"TTATAA"}},
+            {"PspOMI",new List<string>{"GGGCCC"}},
+            {"PstI",new List<string>{"CTGCAG"}},
+            {"PvuI",new List<string>{"CGATCG"}},
+            {"PvuII",new List<string>{"CAGCTG"}},
+            {"SacI",new List<string>{"GAGCTC"}},
+            {"SacII",new List<string>{"CCGCGG"}},
+            {"SalI",new List<string>{"GTCGAC"}},
+            {"SbfI",new List<string>{"CCTGCAGG"}},
+            {"ScaI",new List<string>{"AGTACT"}},
+            {"SfcI",new List<string>{"CTACAG", "CTGCAG", "CTATAG", "CTGTAG"}},
+            {"SfoI",new List<string>{"GGCGCC"}},
+            {"SgrAI",new List<string>{"CACCGGCG", "CGCCGGTG", "CACCGGTG", "CGCCGGTCG"}},   
+            {"SmaI",new List<string>{"CCCGGG"}},
+            {"SmlI",new List<string>{"CTCAAG", "CTCGAG", "CTTAAG", "CTTGAG"}},
+            {"SnaBI",new List<string>{"TACGTA"}},
+            {"SpeI",new List<string>{"ACTAGT"}},
+            {"SphI",new List<string>{"GCATGC"}},
+            {"SspI",new List<string>{"AATATT"}},
+            {"StuI",new List<string>{"AGGCCT"}},
+            {"SwaI",new List<string>{"ATTTAAAT"}},
+            {"XbaI",new List<string>{"TCTAGA"}},
+            {"XhoI",new List<string>{"CTCGAG"}},
+            {"XmaI",new List<string>{"CCCGGG"}}
+        };
+        #endregion
+
+        #region METHODS
         /// <summary>
         /// getString method
         /// Returns full fragment sequence as a string. Based on .NET Bio Programming Guide.
@@ -183,9 +279,10 @@ namespace CodonOptimizer.Classes
             // translating codons to amino acids using CodonToAmino dictionary
             foreach (string l in list)
             {
-                aminos.Add(CodonToAmino[l]);
+                aminos.Add(codonToAmino[l]);
             }
             return aminos;
         }
+        #endregion
     }
 }

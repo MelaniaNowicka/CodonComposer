@@ -3,10 +3,10 @@
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                   xmlns:mui="http://firstfloorsoftware.com/ModernUI"
                   Title="Codon Optimizer" 
-                  Width="1024" Height="768"
-                  ResizeMode="NoResize"
+                  Width="1024" Height="758"
+                  ResizeMode="CanResize"
                   WindowStartupLocation="CenterScreen"
-                  Style="{StaticResource BlankWindow}">
+                  Style="{StaticResource BlankWindow}" IsManipulationEnabled="True">
     
     <Grid Style="{StaticResource ContentRoot}">
         <mui:ModernTab SelectedSource="/Pages/HowToUse.xaml" Layout="List">

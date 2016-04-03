@@ -21,6 +21,7 @@ namespace CodonOptimizer.Classes
             AminoORFseq = new List<string>();
         }
 
+        #region GLOBAL VARIABLES
         /// <summary>
         /// ORF list of codons 
         /// </summary>
@@ -37,6 +38,14 @@ namespace CodonOptimizer.Classes
         public static double CPB;
 
         /// <summary>
+        /// CAI score
+        /// </summary>
+        public static double CAI;
+
+        #endregion
+
+        #region METHODS
+        /// <summary>
         /// CPBcalculator method
         /// method for CPB calculating
         /// </summary>
@@ -44,19 +53,22 @@ namespace CodonOptimizer.Classes
         public static double CPBcalculator(List<string> orf)
         {
             CPB = 0;
-            int n = 0; 
+            int i = 0;
+ 
             foreach (string codon in orf)
             {
-                if (n != 0 && codon != "TGA" && codon != "TAA" && codon != "TAG")
+                if (i != 0 && codon != "TGA" && codon != "TAA" && codon != "TAG")
                 {
-                    CPB += CCranking.CCranker.CPS[orf[n-1]+codon];
+                    CPB += CCranking.CCranker.CPS[orf[i-1]+codon];
                 }
-                n++;
+                i++;
             }
 
             CPB = CPB / (orf.Count - 1);
 
             return Math.Round(CPB, 4);
         }
+        #endregion
+
     }
 }

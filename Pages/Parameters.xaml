@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mui="http://firstfloorsoftware.com/ModernUI"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="750">
 
-    <Grid Margin ="0 50 0 0">
+    <Grid Margin ="0,10,0,40">
         <Grid.RowDefinitions>
             <RowDefinition Height="300"/>
             <RowDefinition Height="*"/>
@@ -15,17 +15,60 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Frame Content="" HorizontalAlignment="Left" Height="231" Margin="22,59,-696,0" VerticalAlignment="Top" Width="698" BorderBrush="#FF333333" BorderThickness="2"/>
+        <Frame Content="" HorizontalAlignment="Left" Height="231" Margin="21,34,-574,0" VerticalAlignment="Top" Width="698" BorderBrush="#FF333333" BorderThickness="2"/>
         <Frame Content="" HorizontalAlignment="Left" Height="194" Margin="21,46,-638,0" VerticalAlignment="Top" Width="699" BorderBrush="#FF333333" BorderThickness="2" Grid.Row="1"/>
-        <Label Content="SEQUENCE PARAMETERS" HorizontalAlignment="Left" Height="19" Margin="26,25,-230,0" VerticalAlignment="Top" Width="223" FontWeight="Bold" FontSize="14"/>
+        <Label Content="SEQUENCE PARAMETERS" HorizontalAlignment="Left" Height="19" Margin="22,10,-107,0" VerticalAlignment="Top" Width="223" FontWeight="Bold" FontSize="14"/>
         <Label Content="ALGORITHM PARAMETERS" HorizontalAlignment="Left" Height="19" Margin="21,10,-222,0" VerticalAlignment="Top" Width="223" FontWeight="Bold" FontSize="14" RenderTransformOrigin="0.578,1.105" Grid.Row="1"/>
         <Label Content="Population size:" HorizontalAlignment="Left" Height="17" Margin="45,103,-65,0" Grid.Row="1" VerticalAlignment="Top" Width="106" FontWeight="Bold"/>
         <Label Content="Reproduction cycles:" HorizontalAlignment="Left" Height="17" Margin="45,60,-92,0" Grid.Row="1" VerticalAlignment="Top" Width="130" FontWeight="Bold"/>
-        <Label Content="Mutation probability:" HorizontalAlignment="Left" Height="17" Margin="45,146,-86,0" Grid.Row="1" VerticalAlignment="Top" Width="130" FontWeight="Bold"/>
-        <Label Content="Crossover probability:" HorizontalAlignment="Left" Height="17" Margin="45,187,-85,0" Grid.Row="1" VerticalAlignment="Top" Width="130" FontWeight="Bold"/>
-        <Slider HorizontalAlignment="Left" Height="17" Margin="260,146,-379,0" Grid.Row="1" VerticalAlignment="Top" Width="210"/>
-        <Slider HorizontalAlignment="Left" Height="17" Margin="260,187,-378,0" Grid.Row="1" VerticalAlignment="Top" Width="210"/>
-        <TextBox HorizontalAlignment="Left" Height="20" Margin="260,103,-382,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="210"/>
-        <TextBox HorizontalAlignment="Left" Height="20" Margin="260,61,-385,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="210"/>
+        <Label Content="Mutation probability:" HorizontalAlignment="Left" Height="17" Margin="45,146,-49,0" Grid.Row="1" VerticalAlignment="Top" Width="141" FontWeight="Bold"/>
+        <Label Content="Crossover probability:" HorizontalAlignment="Left" Height="17" Margin="45,187,-50,0" Grid.Row="1" VerticalAlignment="Top" Width="141" FontWeight="Bold"/>
+        <Slider Name ="MutationProbabilitySlider" HorizontalAlignment="Left" Height="17" Margin="247,146,-225,0" Grid.Row="1" VerticalAlignment="Top" Width="95" Maximum="1" SmallChange="0.01"/>
+        <Slider Name ="CrossoverProbabilitySlider" HorizontalAlignment="Left" Height="17" Margin="247,187,-224,0" Grid.Row="1" VerticalAlignment="Top" Width="95" Maximum="1" SmallChange="0.01"/>
+        <TextBox Name ="MutationProbabilityTextBox" Text="{Binding ElementName=MutationProbabilitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}" HorizontalAlignment="Left" Height="17" Margin="357,145,-263,0" Grid.Row="1" TextWrapping="Wrap"  VerticalAlignment="Top" Width="34" FontSize="10" TextAlignment="Right" TextChanged="MutationProbabilityTextBox_TextChanged"/>
+        <TextBox Name ="CrossoverProbabilityTextBox" Text="{Binding ElementName=CrossoverProbabilitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}" HorizontalAlignment="Left" Height="17" Margin="357,187,-266,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="34" FontSize="10" TextAlignment="Right" TextChanged="CrossoverProbabilityTextBox_TextChanged"/>
+        <TextBox Name ="ReproductionCyclesTextBox" HorizontalAlignment="Left" Height="20" Margin="247,62,-262,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="144" TextChanged="ReproductionCyclesTextBox_TextChanged" FontSize="11" Text="1000" TextAlignment="Right"/>
+        <TextBox Name ="PopulationSizeTextBox" HorizontalAlignment="Left" Height="20" Margin="247,105,-261,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="144" TextChanged="PopulationSizeTextBox_TextChanged" Text="50" FontSize="11" TextAlignment="Right"/>
+        <Label Content="Tournament size:" HorizontalAlignment="Left" Height="17" Margin="456,103,-474,0" Grid.Row="1" VerticalAlignment="Top" Width="130" FontWeight="Bold" ClipToBounds="True"/>
+        <Label HorizontalAlignment="Left" Height="19" Margin="456,66,-550,0" VerticalAlignment="Top" Width="203" FontWeight="Bold" FontSize="14" RenderTransformOrigin="0.578,1.105" Grid.Row="1">
+            <CheckBox Name ="AdditionalParametersCheckbox" Content="Use additional parameters" Checked="AdditionalParametersCheckbox_Checked" Unchecked="AdditionalParametersCheckbox_Unchecked">
+                <CheckBox.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Use additional parameters</TextBlock>
+                            <TextBlock>Chceck this option to add additional parameters.</TextBlock>
+                            <TextBlock>Otherwise the algorithm will use default parameters.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </CheckBox.ToolTip>
+            </CheckBox>
+        </Label>
+        <TextBox Name ="TournamentSizeTextBox" HorizontalAlignment="Left" Height="20" Margin="585,103,-568,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" TextChanged="TournamentSizeTextBox_TextChanged" FontSize="11" Text="25" TextAlignment="Right"/>
+        <Label Content="Stop criterion:" HorizontalAlignment="Left" Height="17" Margin="456,145,-454,0" Grid.Row="1" VerticalAlignment="Top" Width="130" FontWeight="Bold" ClipToBounds="True"/>
+        <TextBox x:Name ="StopCriterionTextBox" HorizontalAlignment="Left" Height="20" Margin="585,142,-544,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="93" TextChanged="StopCriterionTextBox_TextChanged" FontSize="11" Text="25" TextAlignment="Right">
+            <TextBox.ToolTip>
+                <ToolTip>
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold" TextAlignment="Left">Additional stop criterion</TextBlock>
+                        <TextBlock TextAlignment="Left">Set a number of cycles that do not generate improvement.</TextBlock>
+                    </StackPanel>
+                </ToolTip>
+            </TextBox.ToolTip>
+        </TextBox>
+        <CheckBox Content="Remove A-homopolymers" HorizontalAlignment="Left" Height="31" Margin="45,84,-63,0" VerticalAlignment="Top" Width="171"/>
+        <Label Content="A-homopolymers removal" HorizontalAlignment="Left" Height="25" Margin="45,54,-119,0" VerticalAlignment="Top" Width="222" FontWeight="Bold"/>
+        <Label Content="N-terminus optimization" HorizontalAlignment="Left" Height="21" Margin="45,130,-54,0" VerticalAlignment="Top" Width="158" FontWeight="Bold"/>
+        <CheckBox Content="Optimize N-terminus" HorizontalAlignment="Left" Height="22" Margin="45,171,-39,0" VerticalAlignment="Top" Width="146"/>
+        <Label Content="Restriction ensymes sites removal:" HorizontalAlignment="Left" Height="25" Margin="282,54,-349,0" VerticalAlignment="Top" Width="222" FontWeight="Bold"/>
+        <ListBox Name ="RestrictionSitesPoolListBox" HorizontalAlignment="Left" Height="147" Margin="282,84,-245,0" VerticalAlignment="Top" Width="125" BorderThickness="1" ItemsSource="{Binding enzymesToSequences}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Key}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox Name ="RestrictionSitesToRemovalListBox" HorizontalAlignment="Left" Height="147" Margin="553,84,-507,0" VerticalAlignment="Top" Width="125" BorderThickness="1"/>
+        <Button Name="AddToRemovalButton" Content=">>" HorizontalAlignment="Left" Margin="443,98,-349,0" VerticalAlignment="Top" Width="75" FontWeight="Bold"/>
+        <Button Name ="UndoAddToRemovalButton" Content="&lt;&lt;" HorizontalAlignment="Left" Margin="443,134,-348,0" VerticalAlignment="Top" Width="75" FontWeight="Bold"/>
     </Grid>
 </UserControl>
