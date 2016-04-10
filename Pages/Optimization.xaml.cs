@@ -37,6 +37,7 @@ namespace CodonOptimizer.Pages
             Optimizer.ReproductiveCyclesNumber = 1000;
             Optimizer.PopulationSize = 50;
             Optimizer.TournamentSize = 25;
+            Optimizer = new Optimizer();
         }
 
         #region GLOBAL VARIABLES
@@ -124,9 +125,6 @@ namespace CodonOptimizer.Pages
         /// <param name="e"></param>
         private void LoadORFButton_Click(object sender, RoutedEventArgs e)
         {
-            int columnCounter = 0;
-            Data = new DataTable();
-            ORF = new ORF();
             // extensions setting
             extensions = "Fasta files|*.fa;*.fas;*.fasta";
             // openFileDialog method initialization
@@ -136,38 +134,30 @@ namespace CodonOptimizer.Pages
             Nullable<bool> openResult = openFileDialog.ShowDialog();
 
             if (openResult == true)
-            {
+            {   
+                //new ORF object
+                ORF = new ORF();
+
                 string file = openFileDialog.FileName; // file handler
 
                 // sequenceParser method initialization
                 var tupleTemp = SeqParser.sequenceParser(file);
-                ORF.ORFSeq = tupleTemp.Item1;
-                // codonToAminoParser method initialization
-                ORF.AminoORFseq = SeqParser.codonToAminoParser(ORF.ORFSeq);
-                // sequence to data grid
-                Data.Columns.Add(new DataColumn("CPB"));
-                foreach (var k in ORF.AminoORFseq)
+
+                if (tupleTemp.Item2 != 1)
                 {
-                    Data.Columns.Add(new DataColumn(columnCounter.ToString()));
-                    columnCounter++;
+                    string message = "Something went wrong. Probably you tried to use an improper file. Try again. \nFor more information about using Codon Context Ranking check the \"How to use\" page.";
+                    ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
                 }
-                
-                // CPBcalculator method initialization
-                OriginalCPBscoreTextBox.Text = ORF.CPBcalculator(ORF.ORFSeq).ToString();
-
-                // datagrid filling
-                ORF.AminoORFseq.Insert(0, "");
-                ORF.ORFSeq.Insert(0, OriginalCPBscoreTextBox.Text);
-                Data.Rows.Add(ORF.AminoORFseq.ToArray());
-                Data.Rows.Add(ORF.ORFSeq.ToArray());
-                ORF.AminoORFseq.RemoveAt(0);
-                ORF.ORFSeq.RemoveAt(0);
-                OptimizationDataGrid.ItemsSource = Data.DefaultView;
-
-                // Enabling checkboxes and button
-                MaximalizeRadioButton.IsEnabled = true;
-                MinimalizeRadioButton.IsEnabled = true;
-                OptimizeORFButton.IsEnabled = true;
+                else
+                {
+                    ORF.ORFSeq = tupleTemp.Item1;
+                    ORF.AminoORFseq = SeqParser.codonToAminoParser(ORF.ORFSeq);
+                    calculateAndDisplayORF(ORF.ORFSeq, ORF.AminoORFseq);
+                    // Enabling checkboxes and button
+                    MaximalizeRadioButton.IsEnabled = true;
+                    MinimalizeRadioButton.IsEnabled = true;
+                    OptimizeORFButton.IsEnabled = true;
+                }
             }
             else
             {
@@ -177,6 +167,36 @@ namespace CodonOptimizer.Pages
             }
         }
 
+        /// <summary>
+        /// Method for calculating and displaying 
+        /// </summary>
+        /// <param name="orf"></param>
+        /// <param name="amino"></param>
+        private void calculateAndDisplayORF(List<string> orf, List<string> amino)
+        {
+            Data = new DataTable();
+            int columnIdx = 0;
+
+            Data.Columns.Add(new DataColumn("CPB"));
+            foreach (var k in ORF.AminoORFseq)
+            {
+                Data.Columns.Add(new DataColumn(columnIdx.ToString()));
+                columnIdx++;
+            }
+
+            // CPBcalculator method initialization
+            OriginalCPBscoreTextBox.Text = ORF.CPBcalculator(ORF.ORFSeq).ToString();
+
+            // datagrid filling
+            ORF.AminoORFseq.Insert(0, "");
+            ORF.ORFSeq.Insert(0, OriginalCPBscoreTextBox.Text);
+            Data.Rows.Add(ORF.AminoORFseq.ToArray());
+            Data.Rows.Add(ORF.ORFSeq.ToArray());
+            ORF.AminoORFseq.RemoveAt(0);
+            ORF.ORFSeq.RemoveAt(0);
+            OptimizationDataGrid.ItemsSource = Data.DefaultView;
+
+        }
         /// <summary>
         /// UploadRankingButton_Click event handler
         /// </summary>
@@ -200,14 +220,28 @@ namespace CodonOptimizer.Pages
                 {
                     CCranking.CCranker = new CCranker();
                     parser.SetDelimiters(new string[] { ";" });
-
-                    while (!parser.EndOfData)
+                    if (parser.EndOfData)
                     {
-                        string[] fields = parser.ReadFields();
-                        CCranking.CCranker.CPS.Add(fields[0], Convert.ToDouble(fields[1]));
+                        // modern dialog initialization
+                        string message = "The file is empty. Try again. \nFor more information about using Optimalizator check the \"How to use\" page.";
+                        ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
+                    }
+                    else
+                    {
+                        while (!parser.EndOfData)
+                        {
+                            string[] fields = parser.ReadFields();
+                            CCranking.CCranker.CPS.Add(fields[0], Convert.ToDouble(fields[1]));
+                        }
+                        LoadORFButton.IsEnabled = true;
                     }
                 }
-                LoadORFButton.IsEnabled = true;
+            }
+            else
+            {
+                // modern dialog initialization
+                string message = "Something went wrong. Probably you tried to use an improper file. Try again. \nFor more information about using Optimalizator check the \"How to use\" page.";
+                ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
             }
         }
 
@@ -227,8 +261,6 @@ namespace CodonOptimizer.Pages
         /// <param name="e"></param>
         private void OptimizeORFButton_Click(object sender, RoutedEventArgs e)
         {
-            // new optimizer object 
-            Optimizer = new Optimizer();
             textBox = new TextBox();
 
             // Background worker settings

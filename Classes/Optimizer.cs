@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -55,6 +56,26 @@ namespace CodonOptimizer.Classes
         /// (a number of reproduction cycles ehich not generate improvement)
         /// </summary>
         public static int StopCriterion { get; set; }
+
+        /// <summary>
+        /// Flag for A-homopolymers removal
+        /// </summary>
+        public static bool AHomopolymersRemoval { get; set; }
+
+        /// <summary>
+        /// Flag for N-terminus optimization
+        /// </summary>
+        public static bool NTerminusOptimization { get; set; }
+
+        /// <summary>
+        /// Flag for restriction enzyme sites to removal
+        /// </summary>
+        public static bool RestrEnzymeSitesToRemoval { get; set; }
+
+        /// <summary>
+        /// Enzmes Sites to removal 
+        /// </summary>
+        public static List<string> EnzymeSitesToRemoval { get; set; }
 
         /// <summary>
         /// Population of individuals
@@ -163,12 +184,103 @@ namespace CodonOptimizer.Classes
             }
         }
 
+        private void changeCodon(int idx, List<string> orf, int range)
+        {
+            int changeIdx = idx + rnd.Next(0, range);
+            var matches = SeqParser.codonToAmino.Where(x => x.Value == SeqParser.codonToAmino[orf[changeIdx]]).Select(x => x.Key).Where(x => x != orf[changeIdx]).Select(x => x);
+            foreach (var v in matches)
+            {
+                outSeq.Write(v + " ");
+            }
+            outSeq.WriteLine();
+            string elem = matches.ElementAt(rnd.Next(0, matches.Count()));
+            outSeq.WriteLine(orf[changeIdx] + " " + elem);         
+            orf[changeIdx] = elem;
+            foreach (string o in orf)
+            {
+                outSeq.Write(o);
+            }
+            outSeq.WriteLine();
+        }
+
+        /// <summary>
+        /// Method for restriction enzyme sites removal
+        /// </summary>
+        private bool enzymeSitesRemove(List<string> orf, bool allowed, int i)
+        {
+            string orfStr = string.Join("", orf);
+            int idx;
+            allowed = true;
+            using (outSeq = new System.IO.StreamWriter("D:/en.txt", true))
+            {
+                outSeq.WriteLine("####" + i + "####");
+                if (EnzymeSitesToRemoval != null)
+                {
+                    foreach (string enzyme in EnzymeSitesToRemoval)
+                    {
+                        foreach (string site in SeqParser.enzymesToSequences[enzyme])
+                        {
+                            idx = 0;
+                            while (idx >= 0)
+                            {
+                                idx = orfStr.IndexOf(site, idx);
+                                outSeq.WriteLine(enzyme + " " + SeqParser.enzymesToSequences[enzyme][0]);
+                                outSeq.WriteLine(orfStr);
+                                outSeq.WriteLine("FOUNDED: " + idx);
+                                outSeq.WriteLine();
+                                if (idx != -1)
+                                {
+                                    if (idx % 3 == 0)
+                                    {
+                                        if (site.Length == 6)
+                                        {
+                                            changeCodon(idx / 3, orf, 2);
+                                        }
+                                        if (site.Length == 8)
+                                        {
+                                            changeCodon(idx / 3, orf, 3);
+                                        }
+                                    }
+                                    if (idx % 3 == 1)
+                                    {
+                                        if (site.Length == 6)
+                                        {
+                                            changeCodon((idx - 1) / 3, orf, 2);
+                                        }
+                                        if (site.Length == 8)
+                                        {
+                                            changeCodon((idx - 1) / 3, orf, 3);
+                                        }
+                                    }
+                                    if (idx % 3 == 2)
+                                    {
+                                        if (site.Length == 6)
+                                        {
+                                            changeCodon((idx + 1) / 3, orf, 2);
+                                        }
+                                        if (site.Length == 8)
+                                        {
+                                            changeCodon((idx + 1) / 3, orf, 3);
+                                        }
+                                    }
+                                    idx++;
+                                    allowed = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return allowed;
+        }
+
         /// <summary>
         /// Method for generation of initial population
         /// </summary>
         /// <param name="AminoORFseq"></param>
         private void generateInitialPopulation(List<string> AminoORFseq, string stopCodon, System.IO.StreamWriter outSeq)
         {
+            bool allowed;
             //outSeq.WriteLine("====INITIAL POPULATION====");
             // new population of individuals and scores initialization, new best individual initialization
             Population = new List<List<string>>();
@@ -181,6 +293,7 @@ namespace CodonOptimizer.Classes
 
             for (int i = 0; i < PopulationSize; i++)
             {
+                allowed = false;
                 // new individual initialization
                 tempIndividual = new List<string>();
 
@@ -198,9 +311,12 @@ namespace CodonOptimizer.Classes
                     }
                 }
 
-                // adding new individual to population
+                while (allowed == false)
+                {
+                    allowed = enzymeSitesRemove(tempIndividual, allowed, i);
+                } 
+                
                 Population.Add(tempIndividual);
-                // calculation of score for nex individual 
                 PopulationScores.Add(ORF.CPBcalculator(tempIndividual));
 
                 /*foreach (string c in tempIndividual)
@@ -314,6 +430,7 @@ namespace CodonOptimizer.Classes
             NewPopulation.Clear();
             NewPopulationScores.Clear();
             double end;
+            bool allowed;
 
             if (Math.Round(PopulationSize * CrossoverProbability) % 2 != 0)
             {
@@ -336,7 +453,6 @@ namespace CodonOptimizer.Classes
             // randomization of parents for cross over
             for (int i = 0; i < (PopulationSize - end) / 2; i++)
             {
-                outSeq.WriteLine();
                 FirstParentIdx = rnd.Next(0, Population.Count());
                 SecondParentIdx = rnd.Next(0, Population.Count());
                 //outSeq.WriteLine("PARENTS");
@@ -407,6 +523,19 @@ namespace CodonOptimizer.Classes
                 }*/
 
                 //outSeq.WriteLine();
+                allowed = false;
+
+                while (allowed == false)
+                {
+                    allowed = enzymeSitesRemove(FirstNewIndividual, allowed, i);
+                }
+
+                allowed = false;
+
+                while (allowed == false)
+                {
+                    allowed = enzymeSitesRemove(SecondNewIndividual, allowed, i);
+                } 
 
                 // creating new population with new individuals and new scores
                 NewPopulation.Add(FirstNewIndividual);
@@ -488,8 +617,6 @@ namespace CodonOptimizer.Classes
                 // reproductive cycles
                 for (int i = 0; i < ReproductiveCyclesNumber; i++)
                 {
-                    Thread.Sleep(1);
-                    (o as BackgroundWorker).ReportProgress(100 * i / (ReproductiveCyclesNumber - 1));
                     // selection
                     selectIndividualsForCrossover(TournamentSize, outSeq);
 
@@ -508,6 +635,9 @@ namespace CodonOptimizer.Classes
                         // mutation of given codon
                         mutate(Population[individual], individual);
                     }
+
+                    Thread.Sleep(1);
+                    (o as BackgroundWorker).ReportProgress(100 * i / (ReproductiveCyclesNumber - 1));
                 }
 
                 //outSeq.WriteLine("====LAST POPULATION====");
