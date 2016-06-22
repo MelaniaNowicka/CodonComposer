@@ -14,7 +14,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Button Name="AddORFeomeButton" Content="Add ORFeome" Grid.Column="0" Width="150" Height="30" Margin="20,50,466,374" Click="addORFeomeButton_Click">
+        <Button Name="AddORFeomeButton" Content="Add ORFeome" Grid.Column="0" Width="150" Height="30" Margin="20,50,466,374" Click="AddORFeomeButton_Click">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

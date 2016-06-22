@@ -18,13 +18,15 @@ namespace CodonOptimizer.Classes
         public Optimizer()
         {
             rnd = new Random();
+            MinimalNc = 1.0;
+            MaximalNc = 1.0;
         }
 
         #region GLOBAL VARIABLES
         /// <summary>
         /// Optimization mode (1 - maximalization, 0 - minimalization)
         /// </summary>
-        public static int optimizationMode { get; set; }
+        public static int OptimizationMode { get; set; }
 
         /// <summary>
         /// Population size
@@ -58,14 +60,38 @@ namespace CodonOptimizer.Classes
         public static int StopCriterion { get; set; }
 
         /// <summary>
+        /// lysine homopolymers indexes (start, stop) of long A-homopolymers
+        /// </summary>
+        private List<KeyValuePair<int,int>> lysineIdx;
+
+        /// <summary>
         /// Flag for A-homopolymers removal
         /// </summary>
         public static bool AHomopolymersRemoval { get; set; }
 
         /// <summary>
-        /// Flag for N-terminus optimization
+        /// Flag for Nc optimization
         /// </summary>
-        public static bool NTerminusOptimization { get; set; }
+        public static bool NcRestrictions { get; set; }
+
+        /// <summary>
+        /// Flag for Nc maintenance
+        /// </summary>
+        public static bool MaintainOriginalNc { get; set; }
+
+        /// <summary>
+        /// Minimal Nc value
+        /// </summary>
+        public static double MinimalNc { get; set; }
+
+        /// <summary>
+        /// Maximal Nc value
+        /// </summary>
+        public static double MaximalNc { get; set; } 
+
+        private double minimalNc;
+
+        private double maximalNc;
 
         /// <summary>
         /// Flag for restriction enzyme sites to removal
@@ -117,6 +143,9 @@ namespace CodonOptimizer.Classes
         /// </summary>
         Random rnd;
 
+        /// <summary>
+        /// 
+        /// </summary>
         System.IO.StreamWriter outSeq;
 
         #endregion
@@ -150,10 +179,10 @@ namespace CodonOptimizer.Classes
         /// </summary>
         private void updateBestIndividual()
         {
-            // for function maximalization
-            if (optimizationMode == 1)
+            for (int i = 0; i < PopulationScores.Count(); i++)
             {
-                for (int i = 0; i < PopulationScores.Count(); i++)
+                // for function maximalization
+                if (OptimizationMode == 1)
                 {
                     if (PopulationScores[i] > BestScore)
                     {
@@ -165,11 +194,8 @@ namespace CodonOptimizer.Classes
                         }
                     }
                 }
-            }
-            // for function minimalization
-            if (optimizationMode == 0)
-            {
-                for (int i = 0; i < PopulationScores.Count(); i++)
+                // for function minimalization
+                if (OptimizationMode == 0)
                 {
                     if (PopulationScores[i] < BestScore)
                     {
@@ -181,26 +207,77 @@ namespace CodonOptimizer.Classes
                         }
                     }
                 }
+            }   
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="orf"></param>
+        private List<KeyValuePair<int, int>> HomopolymersCheck(List<string> AminoORFseq)
+        {
+            List<KeyValuePair<int, int>> lysineIdx = new List<KeyValuePair<int, int>>();
+            int start = 0, stop = 0;
+
+            for (int i = 1; i < AminoORFseq.Count() - 1; i++)
+            {
+                if(AminoORFseq[i-1] != "K" && AminoORFseq[i] == "K" && AminoORFseq[i+1] == "K")
+                {
+                    start = i;
+                }
+
+                if (AminoORFseq[i - 1] == "K" && AminoORFseq[i] == "K" && AminoORFseq[i + 1] != "K")
+                {
+                    stop = i;
+                }
+
+                if (start != 0 && stop != 0)
+                {
+                    lysineIdx.Add(new KeyValuePair<int, int>(start, stop));
+                    start = 0; stop = 0;
+                }
+            }
+
+            if (lysineIdx.Count() == 0)
+            {
+                AHomopolymersRemoval = false;
+            }
+
+            return lysineIdx;
+        }
+
+        /// <summary>
+        /// Method for homopolymers removal
+        /// </summary>
+        private void HomopolymersRemove(List<string> orf)
+        {
+            foreach(KeyValuePair<int, int> li in lysineIdx) 
+            {
+                for (int i = li.Key; i <= li.Value; i++)
+                {
+                    orf[i] = "AAG";
+                }
             }
         }
 
+        /// <summary>
+        /// Method for swapping codons
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <param name="orf"></param>
+        /// <param name="range"></param>
         private void changeCodon(int idx, List<string> orf, int range)
         {
             int changeIdx = idx + rnd.Next(0, range);
-            var matches = SeqParser.codonToAmino.Where(x => x.Value == SeqParser.codonToAmino[orf[changeIdx]]).Select(x => x.Key).Where(x => x != orf[changeIdx]).Select(x => x);
-            foreach (var v in matches)
+            var matches = SeqParser.codonToAmino
+                            .Where(x => x.Value == SeqParser.codonToAmino[orf[changeIdx]] && !x.Key.Equals(orf[changeIdx]))
+                            .Select(x => x.Key);
+
+            if (matches.Count() != 0)
             {
-                outSeq.Write(v + " ");
+                string elem = matches.ElementAt(rnd.Next(0, matches.Count()));        
+                orf[changeIdx] = elem;
             }
-            outSeq.WriteLine();
-            string elem = matches.ElementAt(rnd.Next(0, matches.Count()));
-            outSeq.WriteLine(orf[changeIdx] + " " + elem);         
-            orf[changeIdx] = elem;
-            foreach (string o in orf)
-            {
-                outSeq.Write(o);
-            }
-            outSeq.WriteLine();
         }
 
         /// <summary>
@@ -211,61 +288,56 @@ namespace CodonOptimizer.Classes
             string orfStr = string.Join("", orf);
             int idx;
             allowed = true;
-            using (outSeq = new System.IO.StreamWriter("D:/en.txt", true))
+
+            if (EnzymeSitesToRemoval != null)
             {
-                outSeq.WriteLine("####" + i + "####");
-                if (EnzymeSitesToRemoval != null)
+                foreach (string enzyme in EnzymeSitesToRemoval)
                 {
-                    foreach (string enzyme in EnzymeSitesToRemoval)
+                    foreach (string site in SeqParser.enzymesToSequences[enzyme])
                     {
-                        foreach (string site in SeqParser.enzymesToSequences[enzyme])
+                        idx = 0;
+                        while (idx >= 0)
                         {
-                            idx = 0;
-                            while (idx >= 0)
+                            //searching for enzyme sites within orf
+                            idx = orfStr.IndexOf(site, idx);
+
+                            if (idx != -1)
                             {
-                                idx = orfStr.IndexOf(site, idx);
-                                outSeq.WriteLine(enzyme + " " + SeqParser.enzymesToSequences[enzyme][0]);
-                                outSeq.WriteLine(orfStr);
-                                outSeq.WriteLine("FOUNDED: " + idx);
-                                outSeq.WriteLine();
-                                if (idx != -1)
+                                if (idx % 3 == 0)
                                 {
-                                    if (idx % 3 == 0)
+                                    if (site.Length == 6)
                                     {
-                                        if (site.Length == 6)
-                                        {
-                                            changeCodon(idx / 3, orf, 2);
-                                        }
-                                        if (site.Length == 8)
-                                        {
-                                            changeCodon(idx / 3, orf, 3);
-                                        }
+                                        changeCodon(idx / 3, orf, 2);
                                     }
-                                    if (idx % 3 == 1)
+                                    if (site.Length == 8)
                                     {
-                                        if (site.Length == 6)
-                                        {
-                                            changeCodon((idx - 1) / 3, orf, 2);
-                                        }
-                                        if (site.Length == 8)
-                                        {
-                                            changeCodon((idx - 1) / 3, orf, 3);
-                                        }
+                                        changeCodon(idx / 3, orf, 3);
                                     }
-                                    if (idx % 3 == 2)
-                                    {
-                                        if (site.Length == 6)
-                                        {
-                                            changeCodon((idx + 1) / 3, orf, 2);
-                                        }
-                                        if (site.Length == 8)
-                                        {
-                                            changeCodon((idx + 1) / 3, orf, 3);
-                                        }
-                                    }
-                                    idx++;
-                                    allowed = false;
                                 }
+                                if (idx % 3 == 1)
+                                {
+                                    if (site.Length == 6)
+                                    {
+                                        changeCodon((idx - 1) / 3, orf, 2);
+                                    }
+                                    if (site.Length == 8)
+                                    {
+                                        changeCodon((idx - 1) / 3, orf, 3);
+                                    }
+                                }
+                                if (idx % 3 == 2)
+                                {
+                                    if (site.Length == 6)
+                                    {
+                                        changeCodon((idx + 1) / 3, orf, 2);
+                                    }
+                                    if (site.Length == 8)
+                                    {
+                                        changeCodon((idx + 1) / 3, orf, 3);
+                                    }
+                                }
+                                idx++;
+                                allowed = false;
                             }
                         }
                     }
@@ -278,10 +350,9 @@ namespace CodonOptimizer.Classes
         /// Method for generation of initial population
         /// </summary>
         /// <param name="AminoORFseq"></param>
-        private void generateInitialPopulation(List<string> AminoORFseq, string stopCodon, System.IO.StreamWriter outSeq)
+        private void generateInitialPopulation(ORF orf, string stopCodon, System.IO.StreamWriter outSeq)
         {
             bool allowed;
-            //outSeq.WriteLine("====INITIAL POPULATION====");
             // new population of individuals and scores initialization, new best individual initialization
             Population = new List<List<string>>();
             PopulationScores = new List<double>();
@@ -291,48 +362,101 @@ namespace CodonOptimizer.Classes
             List<string> tempIndividual;
             string tempCodon;
 
-            for (int i = 0; i < PopulationSize; i++)
+            if (MaintainOriginalNc != true)
             {
-                allowed = false;
-                // new individual initialization
-                tempIndividual = new List<string>();
-
-                // randomization of codons for given amino acid sequence
-                foreach (string amino in AminoORFseq)
+                for (int i = 0; i < PopulationSize; i++)
                 {
-                    if (amino != "/")
+                    allowed = false;
+                    // new individual initialization
+                    tempIndividual = new List<string>();
+
+                    // randomization of codons for given amino acid sequence
+                    foreach (string amino in orf.aminoORFseq)
                     {
-                        tempCodon = randomizeCodon(amino);
-                        tempIndividual.Add(tempCodon);
+                        if (amino != "/")
+                        {
+                            tempCodon = randomizeCodon(amino);
+                            tempIndividual.Add(tempCodon);
+                        }
+                        else
+                        {
+                            tempIndividual.Add(stopCodon);
+                        }
                     }
-                    else
+
+                    //Restriction enzymes sites removal
+                    if (RestrEnzymeSitesToRemoval == true)
                     {
-                        tempIndividual.Add(stopCodon);
+                        while (allowed == false)
+                        {
+                            allowed = enzymeSitesRemove(tempIndividual, allowed, i);
+                        }
+                    }
+
+                    //Homopolymers removal
+                    if (AHomopolymersRemoval == true)
+                    {
+                        HomopolymersRemove(tempIndividual);
+
+                        if (RestrEnzymeSitesToRemoval == true)
+                        {
+                            allowed = false;
+
+                            while (allowed == false)
+                            {
+                                allowed = enzymeSitesRemove(tempIndividual, allowed, i);
+                            }
+                        }
+                    }
+
+                    Population.Add(tempIndividual);
+                    PopulationScores.Add(ORF.CPBcalculator(tempIndividual));
+
+                    BestScore = PopulationScores[0];
+                    foreach (string c in Population[0])
+                    {
+                        BestIndividual.Add(c);
+                    }
+                    updateBestIndividual();
+
+                }
+            }
+
+            if (MaintainOriginalNc == true)
+            {
+                for (int i = 0; i < PopulationSize; i++)
+                {
+                    Population.Add(new List<string>(orf.orfSeq));
+                    if (OptimizationMode == 1)
+                    {
+                        PopulationScores.Add(ORF.MultiScore(orf.orfSeq, orf.aminoAcidCounts, minimalNc, maximalNc, 1));
+                    }
+                    if (OptimizationMode == 0)
+                    {
+                        PopulationScores.Add(ORF.MultiScore(orf.orfSeq, orf.aminoAcidCounts, minimalNc, maximalNc, 0));
                     }
                 }
 
-                while (allowed == false)
+                for (int i = 0; i < Population.Count(); i++)
                 {
-                    allowed = enzymeSitesRemove(tempIndividual, allowed, i);
-                } 
+                    for (int j = 0; j < 10; j++)
+                    {
+                        // individual randomization 
+                        int individual = rnd.Next(0, Population.Count());
+
+                        mutate(Population[individual], individual, orf);
+                    }
+                    
+                }
                 
-                Population.Add(tempIndividual);
-                PopulationScores.Add(ORF.CPBcalculator(tempIndividual));
-
-                /*foreach (string c in tempIndividual)
+                BestScore = PopulationScores[0];
+                foreach (string c in Population[0])
                 {
-                    outSeq.Write(c + " ");
+                    BestIndividual.Add(c);
                 }
-                outSeq.WriteLine(PopulationScores.Last());
-                outSeq.WriteLine();*/
+                updateBestIndividual();
             }
 
-            BestScore = PopulationScores[0];
-            foreach (string c in Population[0])
-            {
-                BestIndividual.Add(c);
-            }
-            updateBestIndividual();
         }
 
         /// <summary>
@@ -365,7 +489,7 @@ namespace CodonOptimizer.Classes
                     else
                     {
                         // optimization mode
-                        if (optimizationMode == 1)
+                        if (OptimizationMode == 1)
                         {
                             if (PopulationScores[IndividualIdx] > PopulationScores[BestIndividualIdx])
                             {
@@ -373,7 +497,7 @@ namespace CodonOptimizer.Classes
                             }
                         }
                         // deoptimization mode
-                        if (optimizationMode == 0)
+                        if (OptimizationMode == 0)
                         {
                             if (PopulationScores[IndividualIdx] < PopulationScores[BestIndividualIdx])
                             {
@@ -383,8 +507,6 @@ namespace CodonOptimizer.Classes
                     }
 
                 }
-                //Console.WriteLine(BestIndividualIdx + " ");
-
                 // adding best individual and score to new population
                 NewPopulation.Add(Population[BestIndividualIdx]);
                 NewPopulationScores.Add(PopulationScores[BestIndividualIdx]);
@@ -393,34 +515,27 @@ namespace CodonOptimizer.Classes
             // clearing current population
             Population.Clear();
             PopulationScores.Clear();
-            //outSeq.WriteLine();
-            //outSeq.WriteLine("====SELECTED POPULATION====");
+
             // setting new selected population as current population
             for (int i = 0; i < PopulationSize; i++)
             {
                 Population.Add(NewPopulation[i]);
                 PopulationScores.Add(NewPopulationScores[i]);
-                /*foreach (string c in Population.Last())
-                {
-                    outSeq.Write(c + " ");
-                }
-                outSeq.WriteLine(PopulationScores.Last());
-                outSeq.WriteLine();*/
             }
         }
 
         /// <summary>
         /// Method for crossover (uniform crossover)
         /// </summary>
-        private void crossover(System.IO.StreamWriter outSeq)
+        private bool crossover(System.IO.StreamWriter outSeq, ORF orf, double minimalNc, double maximalNc)
         {
-            //outSeq.WriteLine();
-            //outSeq.WriteLine("====CROSSOVER====");
             // temporary variables
             // first parent and second parent indexes
             int FirstParentIdx, SecondParentIdx;
             // new individuals 
             List<string> FirstNewIndividual, SecondNewIndividual;
+            int stopCounter = 0;
+            bool ncFound = true;
 
             // crossover mask 
             List<int> CrossoverMask;
@@ -429,16 +544,16 @@ namespace CodonOptimizer.Classes
             //clearing new population and scores
             NewPopulation.Clear();
             NewPopulationScores.Clear();
-            double end;
+            int end;
             bool allowed;
 
             if (Math.Round(PopulationSize * CrossoverProbability) % 2 != 0)
             {
-                end = PopulationSize - Math.Round(PopulationSize * CrossoverProbability) + 1;
+                end = PopulationSize - (int)Math.Round(PopulationSize * CrossoverProbability) + 1;
             }
             else
             {
-                end = PopulationSize - Math.Round(PopulationSize * CrossoverProbability);
+                end = PopulationSize - (int)Math.Round(PopulationSize * CrossoverProbability);
             }
 
             for (int i = 0; i < end; i++)
@@ -450,45 +565,27 @@ namespace CodonOptimizer.Classes
                 PopulationScores.RemoveAt(FirstParentIdx);
             }
 
+
             // randomization of parents for cross over
             for (int i = 0; i < (PopulationSize - end) / 2; i++)
             {
+                
                 FirstParentIdx = rnd.Next(0, Population.Count());
                 SecondParentIdx = rnd.Next(0, Population.Count());
-                //outSeq.WriteLine("PARENTS");
-                //outSeq.Write("First parent: " + FirstParentIdx + " \n");
-                //outSeq.Write("Second parent: " + SecondParentIdx + "\n");
-
-                /*foreach (string c in Population[FirstParentIdx])
-                {
-                    outSeq.Write(c + " ");
-                }
-
-                outSeq.WriteLine();
-
-                foreach (string c in Population[SecondParentIdx])
-                {
-                    outSeq.Write(c + " ");
-                }*/
-
-                //outSeq.WriteLine();
 
                 // rerandomization if parent index was repeated
                 while (FirstParentIdx == SecondParentIdx)
                 {
                     SecondParentIdx = rnd.Next(0, Population.Count());
-                    //outSeq.Write("Second parent again: " + SecondParentIdx + "\n");
                 }
-                //outSeq.WriteLine();
+
                 // new crossover mask initialization
                 CrossoverMask = new List<int>();
-                //outSeq.WriteLine("CROSSOVER MASK");
+
                 for (int x = 0; x < CrossoverMaskSize; x++)
                 {
                     CrossoverMask.Add(rnd.Next(0, 2));
-                    //outSeq.Write(CrossoverMask.Last() + "   ");
                 }
-                //outSeq.WriteLine();
 
                 // new individuals initialization
                 FirstNewIndividual = new List<string>();
@@ -508,92 +605,179 @@ namespace CodonOptimizer.Classes
                         SecondNewIndividual.Add(Population[FirstParentIdx][x]);
                     }
                 }
-                //outSeq.WriteLine();
-                //outSeq.WriteLine("First new individual");
-                /*foreach (string c in FirstNewIndividual)
+
+                //Restricion enzymes sites removal
+
+                if (RestrEnzymeSitesToRemoval == true)
                 {
-                    outSeq.Write(c + " ");
+                    allowed = false;
+
+                    while (allowed == false)
+                    {
+                        allowed = enzymeSitesRemove(FirstNewIndividual, allowed, i);
+                    }
+
+                    allowed = false;
+
+                    while (allowed == false)
+                    {
+                        allowed = enzymeSitesRemove(SecondNewIndividual, allowed, i);
+                    }
                 }
 
-                outSeq.WriteLine();
-                outSeq.WriteLine("Second new individual");
-                foreach (string c in SecondNewIndividual)
+                //Homopolymers removal
+                if (AHomopolymersRemoval == true)
                 {
-                    outSeq.Write(c + " ");
-                }*/
+                    HomopolymersRemove(FirstNewIndividual);
+                    HomopolymersRemove(SecondNewIndividual);
 
-                //outSeq.WriteLine();
-                allowed = false;
+                    allowed = false;
 
-                while (allowed == false)
-                {
-                    allowed = enzymeSitesRemove(FirstNewIndividual, allowed, i);
+                    //Restricion enzymes sites removal
+                    if (RestrEnzymeSitesToRemoval == true)
+                    {
+                        allowed = false;
+
+                        while (allowed == false)
+                        {
+                            allowed = enzymeSitesRemove(FirstNewIndividual, allowed, i);
+                        }
+
+                        allowed = false;
+
+                        while (allowed == false)
+                        {
+                            allowed = enzymeSitesRemove(SecondNewIndividual, allowed, i);
+                        }
+                    }
                 }
-
-                allowed = false;
-
-                while (allowed == false)
+                
+                if (MaintainOriginalNc == true)
                 {
-                    allowed = enzymeSitesRemove(SecondNewIndividual, allowed, i);
-                } 
+                    /*double scoreNcFirst = ORF.NcCalculator(FirstNewIndividual, orf.aminoAcidCounts);
+                    double scoreNcSecond = ORF.NcCalculator(SecondNewIndividual, orf.aminoAcidCounts);
+                    
+                    if (scoreNcFirst >= minimalNc && scoreNcFirst <= maximalNc && scoreNcSecond >= minimalNc && scoreNcSecond <= maximalNc)
+                    {*/
+                        // creating new population with new individuals and new scores
+                        NewPopulation.Add(FirstNewIndividual);
+                        NewPopulation.Add(SecondNewIndividual);
+                        if (OptimizationMode == 1) 
+                        {
+                            NewPopulationScores.Add(ORF.MultiScore(FirstNewIndividual, orf.aminoAcidCounts, minimalNc, maximalNc, 1));
+                            NewPopulationScores.Add(ORF.MultiScore(SecondNewIndividual, orf.aminoAcidCounts, minimalNc, maximalNc, 1));
+                        }
+                        if (OptimizationMode == 0)
+                        {
+                            NewPopulationScores.Add(ORF.MultiScore(FirstNewIndividual, orf.aminoAcidCounts, minimalNc, maximalNc, 0));
+                            NewPopulationScores.Add(ORF.MultiScore(SecondNewIndividual, orf.aminoAcidCounts, minimalNc, maximalNc, 0));
+                        }
 
-                // creating new population with new individuals and new scores
-                NewPopulation.Add(FirstNewIndividual);
-                NewPopulation.Add(SecondNewIndividual);
-                NewPopulationScores.Add(ORF.CPBcalculator(FirstNewIndividual));
-                NewPopulationScores.Add(ORF.CPBcalculator(SecondNewIndividual));
+                        // removing "used" parents
+                        if (FirstParentIdx > SecondParentIdx)
+                        {
+                            Population.RemoveAt(FirstParentIdx);
+                            Population.RemoveAt(SecondParentIdx);
+                        }
+                        else
+                        {
+                            Population.RemoveAt(SecondParentIdx);
+                            Population.RemoveAt(FirstParentIdx);
+                        }
+                        //stopCounter = 0;
+                        //Console.WriteLine(stopCounter);
+                    /*}
+                    else 
+                    { 
+                        i--; 
+                        stopCounter++;
+                        if (stopCounter == StopCriterion%2)
+                        {
+                            for (int j = 0; j < 10; j++)
+                            {
 
-                // removing "used" parents
-                if (FirstParentIdx > SecondParentIdx)
-                {
-                    Population.RemoveAt(FirstParentIdx);
-                    Population.RemoveAt(SecondParentIdx);
+                            }
+                        }
+                        Console.WriteLine(stopCounter +" " + scoreNcFirst + " " + scoreNcSecond);
+                        if (stopCounter == StopCriterion) 
+                        {
+                            Console.WriteLine("cross " + stopCounter + " " + StopCriterion);
+                            i = (PopulationSize - end) / 2 - 1; 
+                            ncFound = false;
+                            break;
+                        } 
+                    }*/
+
                 }
                 else
                 {
-                    Population.RemoveAt(SecondParentIdx);
-                    Population.RemoveAt(FirstParentIdx);
+                    // creating new population with new individuals and new scores
+                    NewPopulation.Add(FirstNewIndividual);
+                    NewPopulation.Add(SecondNewIndividual);
+                    NewPopulationScores.Add(ORF.CPBcalculator(FirstNewIndividual));
+                    NewPopulationScores.Add(ORF.CPBcalculator(SecondNewIndividual));
+
+                    // removing "used" parents
+                    if (FirstParentIdx > SecondParentIdx)
+                    {
+                        Population.RemoveAt(FirstParentIdx);
+                        Population.RemoveAt(SecondParentIdx);
+                    }
+                    else
+                    {
+                        Population.RemoveAt(SecondParentIdx);
+                        Population.RemoveAt(FirstParentIdx);
+                    }
                 }
-                //Console.WriteLine("Population: " + Population.Count());
             }
 
             PopulationScores.Clear();
 
-            for (int i = 0; i < NewPopulation.Count(); i++)
+            for (int j = 0; j < NewPopulation.Count(); j++)
             {
-                Population.Add(NewPopulation[i]);
-                PopulationScores.Add(NewPopulationScores[i]);
+                Population.Add(NewPopulation[j]);
+                PopulationScores.Add(NewPopulationScores[j]);
             }
 
             // updating best individual
             updateBestIndividual();
-
-            //outSeq.WriteLine();
-            //outSeq.WriteLine("====AFTER CROSSOVER====");
-
-            /*for (int i = 0; i < PopulationSize; i++)
-            {
-                foreach (string c in Population[i])
-                {
-                    outSeq.Write(c + " ");
-                }
-
-                outSeq.WriteLine(PopulationScores[i]);
-                outSeq.WriteLine();
-            }*/
+            return ncFound;
         }
 
         /// <summary>
         /// Method for mutation
         /// </summary>
-        private void mutate(List<string> Individual, int IndividualIdx)
+        private void mutate(List<string> Individual, int IndividualIdx, ORF orf)
         {
             int codonIdx = rnd.Next(0, Individual.Count()-1);
             string amino = SeqParser.codonToAmino[Individual[codonIdx]];
 
             // replacing randomized codon and recalculating of score
             Individual[codonIdx] = randomizeCodon(amino);
-            PopulationScores[IndividualIdx] = ORF.CPBcalculator(Population[IndividualIdx]);
+
+            //Homopolymers Removal
+            if (AHomopolymersRemoval == true)
+            {
+                HomopolymersRemove(Individual);
+            }
+
+            if (MaintainOriginalNc == true)
+            {
+                if (OptimizationMode == 1)
+                {
+                    PopulationScores[IndividualIdx] = ORF.MultiScore(Population[IndividualIdx], orf.aminoAcidCounts, minimalNc, maximalNc, 1);
+                }
+                if (OptimizationMode == 0)
+                {
+                    PopulationScores[IndividualIdx] = ORF.MultiScore(Population[IndividualIdx], orf.aminoAcidCounts, minimalNc, maximalNc, 0);
+                }
+            }
+            else
+            {
+                PopulationScores[IndividualIdx] = ORF.CPBcalculator(Population[IndividualIdx]);
+            }
+            
+
         }
 
         /// <summary>
@@ -603,61 +787,77 @@ namespace CodonOptimizer.Classes
         /// <param name="AminoORFseq"></param>
         /// <param name="optimizationMode"></param>
         /// <returns></returns>
-        public List<string> optimizeORF(List<string> ORFSeq, List<string> AminoORFseq, object o, DoWorkEventArgs e)
+        public List<string> optimizeORF(ORF orf, object o, DoWorkEventArgs e)
         {
-            string stopCodon = ORFSeq.Last();
-            using (outSeq = new System.IO.StreamWriter("D:/ga.txt"))
-            {
-                // codons grouping to dictionary 
-                aminoToCodon();
+            string stopCodon = orf.orfSeq.Last();
+            int stopCounter = 0;
+            double lastScore = 0;
+            
+            minimalNc = MinimalNc;
+            maximalNc = MaximalNc;
 
-                // initial population generation
-                generateInitialPopulation(AminoORFseq, stopCodon, outSeq);
-                
-                // reproductive cycles
-                for (int i = 0; i < ReproductiveCyclesNumber; i++)
+            if (MaintainOriginalNc == true)
+            {
+                minimalNc = ORF.NcCalculator(orf.orfSeq, orf.aminoAcidCounts) - minimalNc;
+                maximalNc = ORF.NcCalculator(orf.orfSeq, orf.aminoAcidCounts) + maximalNc;
+            }
+
+            //Homopolymers counting
+            if (AHomopolymersRemoval == true)
+            {
+                lysineIdx = HomopolymersCheck(orf.aminoORFseq);
+            }
+
+            // codons grouping to dictionary 
+            aminoToCodon();
+
+            // initial population generation
+            generateInitialPopulation(orf, stopCodon, outSeq);
+
+            // reproductive cycles
+            for (int i = 0; i < ReproductiveCyclesNumber; i++)
+            {
+                // mutation
+                for (int j = 0; j < Math.Round(Population.Count * MutationProbability); j++)
+                {
+                    // individual randomization 
+                    int individual = rnd.Next(0, Population.Count());
+                    // mutation of given codon
+                    mutate(Population[individual], individual, orf);
+                }
+
+                if (CrossoverProbability != 0)
                 {
                     // selection
                     selectIndividualsForCrossover(TournamentSize, outSeq);
 
                     // crossover
-                    crossover(outSeq);
+                    if (!crossover(outSeq, orf, minimalNc, maximalNc)) { i = ReproductiveCyclesNumber - 1; }
 
-                    // mutation
-                    for (int j = 0; j < Math.Round(Population.Count * MutationProbability); j++)
+                    if (lastScore != BestScore)
                     {
-                        // individual randomization 
-                        int individual = rnd.Next(0, Population.Count());
-                        // codon position randomization
-                        int codon = rnd.Next(0, Population[individual].Count());
-                        // translation to amino acid
-                        string amino = SeqParser.codonToAmino[Population[individual][codon]];
-                        // mutation of given codon
-                        mutate(Population[individual], individual);
+                        lastScore = BestScore;
+                        stopCounter = 0;
+                    }
+                    else
+                    {
+                        stopCounter++;
                     }
 
-                    Thread.Sleep(1);
-                    (o as BackgroundWorker).ReportProgress(100 * i / (ReproductiveCyclesNumber - 1));
+                    if (stopCounter == StopCriterion)
+                    {
+                        i = ReproductiveCyclesNumber - 1;
+                    }
                 }
 
-                //outSeq.WriteLine("====LAST POPULATION====");
-                // best score for last population
-
-                /*for (int i = 0; i < PopulationSize; i++)
-                {
-                    foreach (string c in Population[i])
-                    {
-                        outSeq.Write(c + " ");
-                    }
-                    outSeq.WriteLine();
-                    outSeq.WriteLine(PopulationScores[i]);
-                }*/
-
-                // updating best individual
-                updateBestIndividual();
-
-                return BestIndividual;
+                Thread.Sleep(1);
+                (o as BackgroundWorker).ReportProgress(100 * i / (ReproductiveCyclesNumber - 1));
             }
+            // updating best individual
+            updateBestIndividual();
+
+            return BestIndividual;
+
         }
         #endregion
     }

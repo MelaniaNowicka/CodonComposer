@@ -71,6 +71,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Classes\CCranker.cs" />
+    <Compile Include="Classes\GeneticCode.cs" />
     <Compile Include="Classes\Optimizer.cs" />
     <Compile Include="Classes\ORF.cs" />
     <Compile Include="Classes\SeqParser.cs" />

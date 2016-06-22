@@ -1,8 +1,10 @@
 ﻿using CodonOptimizer.Classes;
 using FirstFloor.ModernUI.Windows.Controls;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,11 +31,53 @@ namespace CodonOptimizer.Pages
             TournamentSizeTextBox.IsEnabled = false;
             StopCriterionTextBox.IsEnabled = false;
             RestrictionSitesPoolListBox.ItemsSource = new List<string>();
+            ImportEnzymes();
             RestrictionSitesPoolListBox.ItemsSource = SeqParser.enzymesToSequences.Keys.ToList();
             Optimizer.EnzymeSitesToRemoval = new List<string>();
             Optimizer.AHomopolymersRemoval = false;
-            Optimizer.NTerminusOptimization = false;
+            Optimizer.NcRestrictions = false;
             Optimizer.RestrEnzymeSitesToRemoval = false;
+            RestrictionSitesPoolListBox.IsEnabled = false;
+            RestrictionSitesToRemovalListBox.IsEnabled = false;
+            AddToRemovalButton.IsEnabled = false;
+            UndoAddToRemovalButton.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// Enzymes import from file.
+        /// </summary>
+        private void ImportEnzymes()
+        {
+            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "restren.csv");
+
+            SeqParser.enzymesToSequences = new Dictionary<string, List<string>>();
+
+            using (TextFieldParser parser = new TextFieldParser(path))
+            {
+                parser.SetDelimiters(new string[] { ";" });
+
+                if (parser.EndOfData)
+                {
+                    // modern dialog initialization
+                    string message = "The restriction enzymes file is empty.";
+                    ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
+                }
+                else
+                {
+                    while (!parser.EndOfData)
+                    {
+                        string[] fields = parser.ReadFields();
+                        List<string> tmpList = new List<string>();
+
+                        for (int i = 1; i < fields.Count(); i++)
+                        {
+                            tmpList.Add(fields[i]);
+                        }
+
+                        SeqParser.enzymesToSequences.Add(fields[0], tmpList);
+                    }
+                }
+            }
         }
 
         #region METHODS
@@ -221,26 +265,79 @@ namespace CodonOptimizer.Pages
             Optimizer.AHomopolymersRemoval = false;
         }
 
-        private void NTerminusOptimizationCheckBox_Checked(object sender, RoutedEventArgs e)
+        private void NcOptimizationCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            Optimizer.NTerminusOptimization = true;
+            Optimizer.NcRestrictions = true;
         }
 
-        private void NTerminusOptimizationCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        private void NcOptimizationCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            Optimizer.NTerminusOptimization = false;
+            Optimizer.NcRestrictions = false;
         }
 
         private void RestrEnzymeSitesToRemovalCheckBox_Checked(object sender, RoutedEventArgs e)
         {
+            RestrictionSitesPoolListBox.IsEnabled = true;
+            RestrictionSitesToRemovalListBox.IsEnabled = true;
+            AddToRemovalButton.IsEnabled = true;
+            UndoAddToRemovalButton.IsEnabled = true;
             Optimizer.RestrEnzymeSitesToRemoval = true;
         }
 
         private void RestrEnzymeSitesToRemovalCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
+            RestrictionSitesPoolListBox.IsEnabled = false;
+            RestrictionSitesToRemovalListBox.IsEnabled = false;
+            AddToRemovalButton.IsEnabled = false;
+            UndoAddToRemovalButton.IsEnabled = false;
             Optimizer.RestrEnzymeSitesToRemoval = false;
         }
 
+        private void NcRestrictionsCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            Optimizer.NcRestrictions = true;
+        }
 
+        private void NcRestrictionsCheckbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Optimizer.NcRestrictions = false;
+        }
+
+        private void MinimalNcTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                Optimizer.MinimalNc = Convert.ToInt32(MinimalNcTextBox.Text);
+            }
+            catch
+            {
+
+            }
+        }
+
+        private void MaximalNcTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                Optimizer.MaximalNc = Convert.ToInt32(MaximalNcTextBox.Text);
+            }
+            catch
+            {
+
+            }
+
+        }
+
+
+        private void NcRestrictionsMaintenanceCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Optimizer.MaintainOriginalNc = false;
+        }
+
+        private void NcRestrictionsMaintenanceCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Optimizer.MaintainOriginalNc = true;
+            ModernDialog.ShowMessage("Nc maintenance require another version of algorithm. The results may be worse.", "Information", MessageBoxButton.OK);
+        }
     }
 }

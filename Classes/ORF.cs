@@ -10,6 +10,8 @@ using FirstFloor.ModernUI.Windows.Controls;
 using System.Windows;
 using CodonOptimizer.Classes;
 using CodonOptimizer.Pages;
+using System.IO;
+using Microsoft.VisualBasic.FileIO;
 
 namespace CodonOptimizer.Classes
 {
@@ -17,56 +19,235 @@ namespace CodonOptimizer.Classes
     {
         public ORF()
         {
-            ORFSeq = new List<string>();
-            AminoORFseq = new List<string>();
+            orfSeq = new List<string>();
+            aminoORFseq = new List<string>();
+        }
+
+        public ORF(ORF orfToCopy)
+        {
+            orfSeq = new List<string>(orfToCopy.orfSeq);
+            aminoORFseq = new List<string>(orfToCopy.aminoORFseq);
         }
 
         #region GLOBAL VARIABLES
         /// <summary>
         /// ORF list of codons 
         /// </summary>
-        public List<string> ORFSeq;
+        public List<string> orfSeq;
 
         /// <summary>
         /// ORF list of mino acids
         /// </summary>
-        public List<string> AminoORFseq;
+        public List<string> aminoORFseq;
+
+        /// <summary>
+        /// Counts of amino acids for ORF
+        /// </summary>
+        public Dictionary<string, int> aminoAcidCounts;
 
         /// <summary>
         /// CPB score
         /// </summary>
-        public static double CPB;
+        public static double cpb;
 
         /// <summary>
-        /// CAI score
+        /// NC score
         /// </summary>
-        public static double CAI;
+        public static double nc;
+
+        public static double multiScore;
+
 
         #endregion
 
         #region METHODS
+
         /// <summary>
         /// CPBcalculator method
-        /// method for CPB calculating
+        /// method for CPB calculation
         /// </summary>
         /// <returns></returns>
         public static double CPBcalculator(List<string> orf)
         {
-            CPB = 0;
+            cpb = 0;
             int i = 0;
- 
+
             foreach (string codon in orf)
             {
+                if (i != (orf.Count - 1) && codon == "TGA" || codon == "TAA" || codon == "TAG")
+                {
+                    // add an exception
+                }
+
                 if (i != 0 && codon != "TGA" && codon != "TAA" && codon != "TAG")
                 {
-                    CPB += CCranking.CCranker.CPS[orf[i-1]+codon];
+                    cpb += CCranking.CCranker.cps[orf[i - 1] + codon];
                 }
                 i++;
             }
 
-            CPB = CPB / (orf.Count - 1);
+            cpb = cpb / (orf.Count - 1);
 
-            return Math.Round(CPB, 4);
+            return Math.Round(cpb, 4);
+        }
+
+        public static double MultiScore(List<string> orf, Dictionary<string, int> aminoAcidCounts, double minimalNc, double maximalNc, int optimizationMode)
+        {
+            double ncScore = NcCalculator(orf, aminoAcidCounts);
+
+            if (optimizationMode == 1)
+            {
+                if (ncScore < minimalNc)
+                {
+                    multiScore = CPBcalculator(orf) - (minimalNc - ncScore) * 0.1;
+                }
+
+                if (ncScore > maximalNc)
+                {
+                    multiScore = CPBcalculator(orf) - (ncScore - maximalNc) * 0.1;
+                }
+            }
+            if (optimizationMode == 0)
+            {
+                if (ncScore < minimalNc)
+                {
+                    multiScore = CPBcalculator(orf) + (minimalNc - ncScore) * 0.1;
+                }
+
+                if (ncScore > maximalNc)
+                {
+                    multiScore = CPBcalculator(orf) + (ncScore - maximalNc) * 0.1;
+                }
+            }
+
+            return Math.Round(multiScore, 4);
+        }
+
+        /// <summary>
+        /// NCcalculator method
+        /// Method for Nc calculation
+        /// </summary>
+        /// <param name="orf"></param>
+        /// <returns></returns>
+        public static double NcCalculator(List<string> orf, Dictionary<string, int> aminoAcidCounts)
+        {
+            nc = 0;
+            double ns = 0;
+            double nk2 = 0, nk3 = 0, nk4 = 0;
+
+            // codons counting
+            var codonCounts = orf.GroupBy(i => i).ToDictionary(i => i.Key, i => i.Count());
+
+            ns = GeneticCode.oneFoldFamilies.Count();
+            nk2 = NcKiCodonFamiliesCalculator(2, GeneticCode.twoFoldFamilies, aminoAcidCounts, codonCounts);
+            nk3 = NcKiCodonFamiliesCalculator(3, GeneticCode.threeFoldFamilies, aminoAcidCounts, codonCounts);
+            nk4 = NcKiCodonFamiliesCalculator(4, GeneticCode.fourFoldFamilies, aminoAcidCounts, codonCounts);
+
+            nc = ns + nk2 + nk3 + nk4;
+
+            /*using (System.IO.StreamWriter outFile = new System.IO.StreamWriter("D:/wyniki.txt", true))
+            {
+                outFile.WriteLine(ns + " + " + nk2 + " + " + nk3 + " + " + nk4 + " = " + nc);
+            }*/
+            
+            return Math.Round(nc,4);
+        }
+
+        /// <summary>
+        /// Method for partial NC calculations
+        /// </summary>
+        /// <returns></returns>
+        private static double NcKiCodonFamiliesCalculator(int Ki, Dictionary<string, List<string>> xFoldFamilies, Dictionary<string, int> aminoAcidCounts, Dictionary<string, int> codonCounts)
+        {
+            double nk = 0;
+            double kxCount = xFoldFamilies.Count();
+            int aaCountAll = 0;
+            int aaCountInd = 0;
+            double pseudocountsAll = 0;
+
+            foreach (KeyValuePair<string, List<string>> family in xFoldFamilies)
+            {
+                aaCountInd = 0;
+
+                if (aminoAcidCounts.ContainsKey(family.Key))
+                {
+                    foreach (string codon in family.Value)
+                    {
+                        if (codonCounts.ContainsKey(codon))
+                        {
+                            aaCountAll += codonCounts[codon];
+                            aaCountInd += codonCounts[codon];
+                        }
+                    }
+
+                    pseudocountsAll += aaCountInd * FcfCalculator(family.Value, Ki, codonCounts, aaCountInd);
+                }
+                else
+                {
+                    pseudocountsAll += 1.0 * FcfCalculator(family.Value, Ki, codonCounts, 1);
+                }
+            }
+
+            /*using (System.IO.StreamWriter outFile = new System.IO.StreamWriter("D:/wyniki.txt", true))
+            {
+                outFile.WriteLine(kxCount + " * " + aaCountAll + " / " + pseudocountsAll);
+            }*/
+
+            nk = kxCount * aaCountAll / pseudocountsAll;
+            return nk;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private static double FcfCalculator(List<string> codonFamily, int codonFamilySize, Dictionary<string, int> codonCounts, int aminoAcidCount)
+        {
+            double fcf = 0;
+
+            for (int i = 0; i < codonFamily.Count();  i++)
+            {
+                if (codonCounts.ContainsKey(codonFamily[i]))
+                {
+                    fcf += Math.Pow(((double)codonCounts[codonFamily[i]] + 1.0) / ((double)aminoAcidCount + (double)codonFamilySize), 2);
+                    /*using (System.IO.StreamWriter outFile = new System.IO.StreamWriter("D:/wyniki2.txt", true))
+                    {
+                        outFile.WriteLine("codons count: " + codonFamily[i] + " " +codonCounts[codonFamily[i]] + " aminoacids: " + aminoAcidCount + " family size: " + codonFamilySize);
+                        outFile.WriteLine("result before power: " + ((double)codonCounts[codonFamily[i]] + 1.0) / ((double)aminoAcidCount + (double)codonFamilySize), 2);
+                        outFile.WriteLine("result: " + Math.Pow(((double)codonCounts[codonFamily[i]] + 1.0) / ((double)aminoAcidCount + (double)codonFamilySize), 2));
+                    }*/
+                }
+                else
+                {
+                    fcf += Math.Pow(1.0/((double)aminoAcidCount + (double)codonFamilySize), 2);
+                    /*using (System.IO.StreamWriter outFile = new System.IO.StreamWriter("D:/wyniki2.txt", true))
+                    {
+                        outFile.WriteLine("result (not found): " + 1.0 / ((double)aminoAcidCount + (double)codonFamilySize));
+                    }*/
+                }
+            }
+
+            /*using (System.IO.StreamWriter outFile = new System.IO.StreamWriter("D:/wyniki2.txt", true))
+            {
+                outFile.WriteLine("FCF " + fcf);
+                outFile.WriteLine();
+            }*/
+
+            return fcf;
+        }
+
+        public static bool lysinesHomopolymersCheck(List<string> aminoSeq)
+        {
+            bool lysinesHomopolymersFound = false;
+            int idx;
+
+            idx = 0;
+            while (idx >= 0)
+            {
+                idx = aminoSeq.IndexOf("L", idx);
+            }
+
+            return lysinesHomopolymersFound;
         }
         #endregion
 

@@ -23,50 +23,44 @@ using CodonOptimizer.Pages;
 
 namespace CodonOptimizer.Classes
 {
-    class CCranker
+    public class CCranker
     {
         public CCranker()
         {
-            CDScount = 0;
-            ORFeome = new List<string>();
-            CPS = new Dictionary<string, double>();
+            orfeome = new List<string>();
+            cps = new Dictionary<string, double>();
         }
 
         #region GLOBAL VARIABLES
         /// <summary>
         /// ORFeome from file to list
         /// </summary>
-        internal List<string> ORFeome;
-
-        /// <summary>
-        /// CDS count
-        /// </summary>
-        internal int CDScount;
+        public List<string> orfeome;
 
         /// <summary>
         /// CodonPairs list object
         /// </summary>
-        private List<string> CodonPairs;
+        private List<string> codonPairs;
 
         /// <summary>
         /// Codons list object
         /// </summary>
-        private List<string> Codons;
+        private List<string> codons;
 
         /// <summary>
         /// AminoAcidsPairs object
         /// </summary>
-        private List<string> AminoAcidsPairs;
+        private List<string> aminoAcidsPairs;
 
         /// <summary>
         /// AminoAcids object
         /// </summary>
-        private List<string> AminoAcids;
+        private List<string> aminoAcids;
 
         /// <summary>
         /// CPS dictionary
         /// </summary>
-        internal Dictionary<string, double> CPS;
+        public Dictionary<string, double> cps;
 
         /// <summary>
         /// CC ranking file name
@@ -81,29 +75,32 @@ namespace CodonOptimizer.Classes
         /// <summary>
         /// Dictionary CodonPairCounts declaration
         /// </summary>
-        Dictionary<string, int> CodonPairCounts;
+        Dictionary<string, int> codonPairCounts;
 
         /// <summary>
         /// Dictionary CodonCounts declaration
         /// </summary>
-        Dictionary<string, int> CodonCounts;
+        Dictionary<string, int> codonCounts;
 
         /// <summary>
         /// Dictionary AminoAcidPairCounts declaration
         /// </summary>
-        Dictionary<string, int> AminoAcidPairCounts;
+        Dictionary<string, int> aminoAcidPairCounts;
 
         /// <summary>
         /// Dictionary AminoAcidCounts declaration
         /// </summary>
-        Dictionary<string, int> AminoAcidCounts;
+        Dictionary<string, int> aminoAcidCounts;
+
+        public static int cdsCount { get; set; }
+
         #endregion
 
         #region METHODS
         /// <summary>
         /// SequencesToList method 
         /// </summary>
-        private void sequencesToList()
+        private void SequencesToList()
         {
             // temporary variables
             string aminoPair;
@@ -111,13 +108,14 @@ namespace CodonOptimizer.Classes
             int n = 0;
 
             // lists initialization
-            CodonPairs = new List<string>();
-            Codons = new List<string>();
-            AminoAcidsPairs = new List<string>();
-            AminoAcids = new List<string>();
+            codonPairs = new List<string>();
+            codons = new List<string>();
+            aminoAcidsPairs = new List<string>();
+            aminoAcids = new List<string>();
+
             int stop = 0;
 
-                foreach (string codon in this.ORFeome)
+                foreach (string codon in this.orfeome)
                 {
                     // stop codons elimination
                     if ((codon != "TGA" && codon != "TGA") &&
@@ -128,26 +126,26 @@ namespace CodonOptimizer.Classes
                         if (n != 0)
                         {
                             // adding codons pairs
-                            if ((ORFeome[n - 1] != "TGA" && ORFeome[n - 1] != "TGA") &&
-                                (ORFeome[n - 1] != "TAA" && ORFeome[n - 1] != "TAA") &&
-                                (ORFeome[n - 1] != "TAG" && ORFeome[n - 1] != "TAG"))
+                            if ((orfeome[n - 1] != "TGA" && orfeome[n - 1] != "TGA") &&
+                                (orfeome[n - 1] != "TAA" && orfeome[n - 1] != "TAA") &&
+                                (orfeome[n - 1] != "TAG" && orfeome[n - 1] != "TAG"))
                             {
-                                this.CodonPairs.Add(ORFeome[n - 1] + codon);
+                                this.codonPairs.Add(orfeome[n - 1] + codon);
 
                                 // adding amino acids pairs
-                                aminoPair = SeqParser.codonToAmino[ORFeome[n - 1]].ToString()
+                                aminoPair = SeqParser.codonToAmino[orfeome[n - 1]].ToString()
                                             + SeqParser.codonToAmino[codon].ToString();
 
-                                this.AminoAcidsPairs.Add(aminoPair);
+                                this.aminoAcidsPairs.Add(aminoPair);
                             }
                         }
                         // adding codons
                         //outSeq.WriteLine(seqTemp.Substring(i, 3) + "\n");
-                        this.Codons.Add(codon);
+                        this.codons.Add(codon);
 
                         //adding amino acids
                         amino = SeqParser.codonToAmino[codon].ToString();
-                        this.AminoAcids.Add(amino);
+                        this.aminoAcids.Add(amino);
                     }
                     else { stop++; }
                     n++;
@@ -158,58 +156,58 @@ namespace CodonOptimizer.Classes
         /// elemCounter method
         /// method for counting elements (codons, codon pairs, aminos, amino pairs) in lists
         /// </summary>
-        public void elemCounter()
+        public void ElemCounter()
         {
 
             // sequencesToList method initialization
-            sequencesToList();
+            SequencesToList();
 
             // counting elements to dictionaries
-            CodonPairCounts = CodonPairs.GroupBy(i => i)
+            codonPairCounts = codonPairs.GroupBy(i => i)
                 .ToDictionary(i => i.Key, i => i.Count());
 
-            CodonCounts = Codons.GroupBy(i => i)
+            codonCounts = codons.GroupBy(i => i)
                 .ToDictionary(i => i.Key, i => i.Count());
 
-            AminoAcidPairCounts = AminoAcidsPairs.GroupBy(i => i)
+            aminoAcidPairCounts = aminoAcidsPairs.GroupBy(i => i)
                 .ToDictionary(i => i.Key, i => i.Count());
 
-            AminoAcidCounts = AminoAcids.GroupBy(i => i)
+            aminoAcidCounts = aminoAcids.GroupBy(i => i)
                 .ToDictionary(i => i.Key, i => i.Count());
 
             // codon pairs counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/cpCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/cpCounts.csv"))
             {
-                foreach (var cp in CodonPairCounts)
+                foreach (var cp in codonPairCounts)
                 {
-                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                    outFile.WriteLine(cp.Key + ";" + cp.Value + ";");
                 }
             }
 
             // amino acid pairs counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/apCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/apCounts.csv"))
             {
-                foreach (var cp in AminoAcidPairCounts)
+                foreach (var cp in aminoAcidPairCounts)
                 {
-                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                    outFile.WriteLine(cp.Key + ";" + cp.Value + ";");
                 }
             }
 
             // codons counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/cCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/cCounts.csv"))
             {
-                foreach (var cp in CodonCounts)
+                foreach (var cp in codonCounts)
                 {
-                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                    outFile.WriteLine(cp.Key + ";" + cp.Value + ";");
                 }
             }
 
             // amino acids counting results to file
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/aaCounts.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/aaCounts.csv"))
             {
-                foreach (var cp in AminoAcidCounts)
+                foreach (var cp in aminoAcidCounts)
                 {
-                    outFile.WriteLine(cp.Key + " " + cp.Value);
+                    outFile.WriteLine(cp.Key + ";" + cp.Value + ";");
                 }
             }
 
@@ -227,10 +225,10 @@ namespace CodonOptimizer.Classes
             string c1;
             string c2;
             double CPScore;
+            // Progressbar conter
             int counter = 0;
-
             // CPS dictionary declaration
-            this.CPS = new Dictionary<string, double>();
+            this.cps = new Dictionary<string, double>();
 
             // temporary variables
             // frequencies
@@ -242,11 +240,11 @@ namespace CodonOptimizer.Classes
             // fy - frequency of second amino acid
             int fab = 0, fxy = 0, fa = 0, fb = 0, fx = 0, fy = 0;
 
-            foreach (var cp in CodonPairCounts)
+            foreach (var cp in codonPairCounts)
             {
                 // thread handling
                 Thread.Sleep(1);
-                (o as BackgroundWorker).ReportProgress(100 * counter / (CodonPairCounts.Count - 1));
+                (o as BackgroundWorker).ReportProgress(100 * counter / (codonPairCounts.Count - 1));
 
                 // fab definition 
                 fab = cp.Value;
@@ -255,7 +253,7 @@ namespace CodonOptimizer.Classes
                 aminoPair = SeqParser.codonToAmino[codonPair.Substring(0, 3)].ToString() + SeqParser.codonToAmino[codonPair.Substring(3, 3)].ToString();
 
                 // fxy definition
-                fxy = AminoAcidPairCounts[aminoPair];
+                fxy = aminoAcidPairCounts[aminoPair];
 
                 // codons substrings
                 c1 = codonPair.Substring(0, 3).ToString();
@@ -263,32 +261,26 @@ namespace CodonOptimizer.Classes
 
                 // fa, fb definition
 
-                fa = CodonCounts[c1];
-                fb = CodonCounts[c2];
+                fa = codonCounts[c1];
+                fb = codonCounts[c2];
 
                 // fx, fy definition
 
-                fx = AminoAcidCounts[SeqParser.codonToAmino[c1].ToString()];
-                fy = AminoAcidCounts[SeqParser.codonToAmino[c2].ToString()];
+                fx = aminoAcidCounts[SeqParser.codonToAmino[c1].ToString()];
+                fy = aminoAcidCounts[SeqParser.codonToAmino[c2].ToString()];
 
                 // CPS counting
                 CPScore = Math.Log((double)fab / ((((double)fa * (double)fb) / ((double)fx * (double)fy)) * (double)fxy));
-                CPS.Add(codonPair, CPScore);
+                cps.Add(codonPair, CPScore);
                 counter++;
             }
 
             // CPS to file CPScores
-            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/CPScores.txt"))
+            using (System.IO.StreamWriter outFile = new System.IO.StreamWriter(path + @"/CPScores.csv"))
             {
-                using (System.IO.StreamWriter outFileCSV = new System.IO.StreamWriter(fileName + @".csv"))
+                foreach (KeyValuePair<string, double> c in cps)
                 {
-                    int n = 1;
-                    foreach (KeyValuePair<string, double> cps in CPS)
-                    {
-                        outFile.WriteLine(n + ". " + cps.Key + " " + cps.Value);
-                        outFileCSV.WriteLine(cps.Key + ";" + cps.Value + ";");
-                        n++;
-                    }
+                    outFile.WriteLine(c.Key + ";" + c.Value + ";");
                 }
             }
         }

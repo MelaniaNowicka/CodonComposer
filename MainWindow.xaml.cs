@@ -24,6 +24,8 @@ namespace CodonOptimizer
         public MainWindow()
         {
             InitializeComponent();
+            this.Width = SystemParameters.WorkArea.Width;
+            this.Height = SystemParameters.WorkArea.Height;
         }
     }
 }

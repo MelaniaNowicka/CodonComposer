@@ -37,7 +37,11 @@ namespace CodonOptimizer.Pages
             Optimizer.ReproductiveCyclesNumber = 1000;
             Optimizer.PopulationSize = 50;
             Optimizer.TournamentSize = 25;
+            Optimizer.MinimalNc = 1.0;
+            Optimizer.MaximalNc = 1.0;
             Optimizer = new Optimizer();
+            minScores = new List<double>();
+            maxScores = new List<double>();
         }
 
         #region GLOBAL VARIABLES
@@ -90,6 +94,16 @@ namespace CodonOptimizer.Pages
         /// SaveFileDialog object
         /// </summary>
         private Microsoft.Win32.SaveFileDialog saveFileDialog;
+
+        /// <summary>
+        /// List of minimal scores
+        /// </summary>
+        private List<double> minScores;
+
+        /// <summary>
+        /// List of maximal scores
+        /// </summary>
+        private List<double> maxScores;
 
         #endregion
 
@@ -150,9 +164,9 @@ namespace CodonOptimizer.Pages
                 }
                 else
                 {
-                    ORF.ORFSeq = tupleTemp.Item1;
-                    ORF.AminoORFseq = SeqParser.codonToAminoParser(ORF.ORFSeq);
-                    calculateAndDisplayORF(ORF.ORFSeq, ORF.AminoORFseq);
+                    ORF.orfSeq = tupleTemp.Item1;
+                    ORF.aminoORFseq = SeqParser.codonToAminoParser(ORF.orfSeq);
+                    CalculateAndDisplayORF(ORF.orfSeq, ORF.aminoORFseq);
                     // Enabling checkboxes and button
                     MaximalizeRadioButton.IsEnabled = true;
                     MinimalizeRadioButton.IsEnabled = true;
@@ -172,30 +186,42 @@ namespace CodonOptimizer.Pages
         /// </summary>
         /// <param name="orf"></param>
         /// <param name="amino"></param>
-        private void calculateAndDisplayORF(List<string> orf, List<string> amino)
+        private void CalculateAndDisplayORF(List<string> orf, List<string> amino)
         {
             Data = new DataTable();
             int columnIdx = 0;
 
             Data.Columns.Add(new DataColumn("CPB"));
-            foreach (var k in ORF.AminoORFseq)
+            foreach (var k in ORF.aminoORFseq)
             {
                 Data.Columns.Add(new DataColumn(columnIdx.ToString()));
                 columnIdx++;
             }
 
             // CPBcalculator method initialization
-            OriginalCPBscoreTextBox.Text = ORF.CPBcalculator(ORF.ORFSeq).ToString();
+            try
+            {
+                OriginalCPBscoreTextBox.Text = ORF.CPBcalculator(ORF.orfSeq).ToString();
+                // datagrid filling
+                ORF.aminoORFseq.Insert(0, "");
+                ORF.orfSeq.Insert(0, OriginalCPBscoreTextBox.Text);
+                Data.Rows.Add(ORF.aminoORFseq.ToArray());
+                Data.Rows.Add(ORF.orfSeq.ToArray());
+                ORF.aminoORFseq.RemoveAt(0);
+                ORF.orfSeq.RemoveAt(0);
+                OptimizationDataGrid.ItemsSource = Data.DefaultView;
+                GeneticCode.UploadGeneticCode();
+                ORF.aminoAcidCounts = ORF.aminoORFseq.GroupBy(i => i)
+                                        .ToDictionary(i => i.Key, i => i.Count());
+                NcScoreTextBox.Text = ORF.NcCalculator(ORF.orfSeq, ORF.aminoAcidCounts).ToString();
+            }
+            catch
+            {
+                string message = "Something went wrong. Please verify your FASTA file for incorrect codons or check your ranking.";
+                ModernDialog.ShowMessage(message.ToString(), "Error", MessageBoxButton.OK);
+            }
 
-            // datagrid filling
-            ORF.AminoORFseq.Insert(0, "");
-            ORF.ORFSeq.Insert(0, OriginalCPBscoreTextBox.Text);
-            Data.Rows.Add(ORF.AminoORFseq.ToArray());
-            Data.Rows.Add(ORF.ORFSeq.ToArray());
-            ORF.AminoORFseq.RemoveAt(0);
-            ORF.ORFSeq.RemoveAt(0);
-            OptimizationDataGrid.ItemsSource = Data.DefaultView;
-
+            
         }
         /// <summary>
         /// UploadRankingButton_Click event handler
@@ -223,7 +249,7 @@ namespace CodonOptimizer.Pages
                     if (parser.EndOfData)
                     {
                         // modern dialog initialization
-                        string message = "The file is empty. Try again. \nFor more information about using Optimalizator check the \"How to use\" page.";
+                        string message = "The file is empty. Try again. \nFor more information about using Optimizer check the \"How to use\" page.";
                         ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
                     }
                     else
@@ -231,7 +257,7 @@ namespace CodonOptimizer.Pages
                         while (!parser.EndOfData)
                         {
                             string[] fields = parser.ReadFields();
-                            CCranking.CCranker.CPS.Add(fields[0], Convert.ToDouble(fields[1]));
+                            CCranking.CCranker.cps.Add(fields[0], Convert.ToDouble(fields[1]));
                         }
                         LoadORFButton.IsEnabled = true;
                     }
@@ -251,7 +277,7 @@ namespace CodonOptimizer.Pages
         private void optimizationInitialization(object sender, DoWorkEventArgs e)
         {
             optimizedORF = new List<string>();
-            optimizedORF = Optimizer.optimizeORF(ORF.ORFSeq, ORF.AminoORFseq, sender, e);
+            optimizedORF = Optimizer.optimizeORF(ORF, sender, e);
         }
 
         /// <summary>
@@ -273,7 +299,7 @@ namespace CodonOptimizer.Pages
             // if maximalization is checked
             if (MaximalizeRadioButton.IsChecked == true)
             {
-                Optimizer.optimizationMode = 1;
+                Optimizer.OptimizationMode = 1;
                 textBox = MaxCPBscoreTextBox;
                 worker.RunWorkerAsync();
                 //optimizationInitialization(MaxCPBscoreTextBox);
@@ -281,7 +307,7 @@ namespace CodonOptimizer.Pages
             // if minimalization is checked
             if (MinimalizeRadioButton.IsChecked == true)
             {
-                Optimizer.optimizationMode = 0;
+                Optimizer.OptimizationMode = 0;
                 textBox = MinCPBscoreTextBox;
                 worker.RunWorkerAsync();
                 //optimizationInitialization(MinCPBscoreTextBox);
@@ -295,11 +321,31 @@ namespace CodonOptimizer.Pages
         /// <param name="e"></param>
         private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            textBox.Text = ORF.CPBcalculator(optimizedORF).ToString();
+            // new score calculation
+            double newScore = ORF.CPBcalculator(optimizedORF);
+
+            //new orf to display
+            textBox.Text = newScore.ToString();
             optimizedORF.Insert(0, textBox.Text);
             Data.Rows.Add(optimizedORF.ToArray());
             OptimizationDataGrid.ItemsSource = Data.DefaultView;
             SaveToFASTAButton.IsEnabled = true;
+
+            //max score Textbox update
+            if (MaximalizeRadioButton.IsChecked == true)
+            {
+                maxScores.Add(newScore);
+                BestMaxCPBscoreTextBox.Text = maxScores.Max().ToString();
+            }
+
+            //min score Textbox update
+            if (MinimalizeRadioButton.IsChecked == true)
+            {
+                minScores.Add(newScore);
+                BestMinCPBscoreTextBox.Text = minScores.Min().ToString();
+            }
+
+            NcScoreOptimizedTextBox.Text = ORF.NcCalculator(optimizedORF, ORF.aminoAcidCounts).ToString();
         }
 
         /// <summary>
@@ -320,6 +366,7 @@ namespace CodonOptimizer.Pages
         private void CurrentRankingCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             UploadRankingButton.IsEnabled = false;
+            LoadORFButton.IsEnabled = true;
         }
 
         /// <summary>

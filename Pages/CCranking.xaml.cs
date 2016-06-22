@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Threading;
 using CodonOptimizer.Classes;
 using FirstFloor.ModernUI.Windows.Controls;
+using System.IO;
 
 namespace CodonOptimizer.Pages
 {
@@ -44,12 +45,12 @@ namespace CodonOptimizer.Pages
         /// <summary>
         /// CCranking object
         /// </summary>
-        internal static CCranker CCranker { get; set; }
+        public static CCranker CCranker { get; set; }
 
         /// <summary>
         /// Background worker
         /// </summary>
-        internal BackgroundWorker worker;
+        public BackgroundWorker worker;
 
         /// <summary>
         /// Flag for checkbox enabling
@@ -62,7 +63,7 @@ namespace CodonOptimizer.Pages
         /// <summary>
         /// openFileDialog initialization method
         /// </summary>
-        private void openFileDialogInitialize()
+        private void OpenFileDialogInitialize()
         {
             this.openFileDialog = new Microsoft.Win32.OpenFileDialog();
             this.openFileDialog.FileName = ""; // default file name
@@ -74,7 +75,7 @@ namespace CodonOptimizer.Pages
         /// <summary>
         /// saveFileDialog
         /// </summary>
-        private void saveFileDialogInitialize()
+        private void SaveFileDialogInitialize()
         {
             this.saveFileDialog = new Microsoft.Win32.SaveFileDialog();
             this.saveFileDialog.FileName = ""; // default file name
@@ -88,14 +89,14 @@ namespace CodonOptimizer.Pages
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void addORFeomeButton_Click(object sender, RoutedEventArgs e)
+        private void AddORFeomeButton_Click(object sender, RoutedEventArgs e)
         {
             // richTextBox cleaning
             ORFeomeInfoRichTextBox.Document.Blocks.Clear();
             CCranker = new CCranker();
 
             // openFileDialog method initialization
-            openFileDialogInitialize();
+            OpenFileDialogInitialize();
 
             // show openFileDialog file dialog
             Nullable<bool> openResult = openFileDialog.ShowDialog();
@@ -107,13 +108,13 @@ namespace CodonOptimizer.Pages
                 // sequenceParser method initialization
                 var tupleTemp = SeqParser.sequenceParser(file);
 
-                CCranker.ORFeome = tupleTemp.Item1;
-                CCranker.CDScount = tupleTemp.Item2;
+                CCranker.orfeome = tupleTemp.Item1;
+                CCranker.cdsCount = tupleTemp.Item2;
 
                 // adding information to ORFeomeInfoRichTextBox
-                if (CCranker.CDScount != 0)
+                if (CCranker.cdsCount != 0)
                 {
-                    ORFeomeInfoRichTextBox.AppendText(CCranker.CDScount.ToString());
+                    ORFeomeInfoRichTextBox.AppendText(CCranker.cdsCount.ToString());
                 }
             }
             else
@@ -135,18 +136,19 @@ namespace CodonOptimizer.Pages
             // richTextBox cleaning
             CPSRichTextBox.Document.Blocks.Clear();
             // directory setting
-            saveFileDialogInitialize();
+            SaveFileDialogInitialize();
             Nullable<bool> result = saveFileDialog.ShowDialog();
 
             if (result == true)
             {
-                CPSRichTextBox.AppendText("Please, wait a moment for results...\n\n");
+                CPSRichTextBox.AppendText("Please, wait a moment for the results...\n\n");
                 worker = new BackgroundWorker();
 
                 // setting a path
                 CCranker.fileName = saveFileDialog.FileName;
-                CCranker.path = System.IO.Path.GetDirectoryName(saveFileDialog.FileName);
-                
+                CCranker.path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(saveFileDialog.FileName), CCranker.fileName);
+                Directory.CreateDirectory(System.IO.Path.Combine(CCranker.path, CCranker.fileName));
+
                 // Background worker settings
                 // background worker initialization, CPR counter initialization
                 worker.DoWork += new DoWorkEventHandler(CCranker.CPScalculator);
@@ -157,8 +159,8 @@ namespace CodonOptimizer.Pages
                 CCProgressBar.Value = 0;
                 
                 // Elements counter initialization
-                CCranker.elemCounter();
-                CPSRichTextBox.AppendText("Calculating...\n\n");
+                CCranker.ElemCounter();
+                CPSRichTextBox.AppendText("Calculating...\n");
                 worker.RunWorkerAsync();
                 currentRankingCheckBoxIsEnabled = true;
             }
@@ -187,9 +189,17 @@ namespace CodonOptimizer.Pages
         /// <param name="e"></param>
         void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            CPSRichTextBox.AppendText("Calculating is completed. Check files in previously selected directory.\n");
+            CPSRichTextBox.AppendText("Calculation is completed. Check files in previously selected directory.\n");
             CPSRichTextBox.AppendText("cCounts - single codon counts\naCounts - single amino acids counts\ncpCounts - codon pair counts\napCounts - amino acid pairs counts\nCPSores - Codon Pair Scores\n");
             CPSRichTextBox.AppendText("For more information, please, check 'How To Use' page\n");
+
+            // verification of ranking correctness
+            // 3721 codon pairs - all possibilities of codon pairs permutations
+            if (CCranker.cps.Count() != 3721)
+            {
+                string message = "Not all possible codon pairs found within the orfeome. Further analysis may be impossible.";
+                ModernDialog.ShowMessage(message.ToString(), "Information", MessageBoxButton.OK);
+            }
         }
         #endregion
     }

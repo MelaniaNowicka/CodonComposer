@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mui="http://firstfloorsoftware.com/ModernUI"
              mc:Ignorable="d" 
-             d:DesignHeight="750" d:DesignWidth="750" IsVisibleChanged="OptimizationPage_IsVisibleChanged" FontSize="15">
+             d:DesignHeight="900" d:DesignWidth="1300" IsVisibleChanged="OptimizationPage_IsVisibleChanged" FontSize="15">
     <Grid Margin="0,0,0,41">
         <Grid.RowDefinitions>
             <RowDefinition Height="120"/>
@@ -15,10 +15,10 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <TextBox Name="OriginalCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="150,311,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" RenderTransformOrigin="0.506,0.68" IsReadOnly="True"/>
+        <TextBox Name="OriginalCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="154,316,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" RenderTransformOrigin="0.506,0.68" IsReadOnly="True"/>
         <Button Name ="LoadORFButton" Content="Load ORF" HorizontalAlignment="Left" Height="31" Margin="547,50,-3,0" VerticalAlignment="Top" Width="178" Click="LoadORFButton_Click" FontSize="12" />
-        <DataGrid Name ="OptimizationDataGrid" Grid.Row="2" Height="179" Margin="20,110,0,0" VerticalAlignment="Top" Width="700" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" IsReadOnly="True" BorderThickness="1" BorderBrush="#FF333333" HorizontalAlignment="Left" SelectionMode="Single"/>
-        <Button Name ="OptimizeORFButton" Content="Optimize ORF" HorizontalAlignment="Left" Height ="30" Margin="20,54,0,0" Grid.Row="2" VerticalAlignment="Top" Width="700" Click="OptimizeORFButton_Click"/>
+        <DataGrid Name ="OptimizationDataGrid" Grid.Row="2" Height="179" Margin="20,110,-556,0" VerticalAlignment="Top" Width="1270" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" IsReadOnly="True" BorderThickness="1" BorderBrush="#FF333333" HorizontalAlignment="Left" SelectionMode="Single"/>
+        <Button Name ="OptimizeORFButton" Content="Optimize ORF" HorizontalAlignment="Left" Height ="30" Margin="20,54,-555,0" Grid.Row="2" VerticalAlignment="Top" Width="1270" Click="OptimizeORFButton_Click"/>
         <Button x:Name="UploadRankingButton" Content="Upload ranking from file" HorizontalAlignment="Left" Height="30" Margin="249,50,0,0" VerticalAlignment="Top" Width="201" Click="UploadRankingButton_Click" FontSize="12">
             <Button.ToolTip>
                 <ToolTip>
@@ -31,22 +31,29 @@
             </Button.ToolTip>
         </Button>
         <CheckBox Name ="CurrentRankingCheckBox" Content="Use current CC ranking" HorizontalAlignment="Left" Height="26" Margin="20,54,0,0" VerticalAlignment="Top" Width="152" IsEnabled="False" Checked="CurrentRankingCheckBox_Checked" Unchecked="CurrentRankingCheckBox_Unchecked" FontSize="12"/>
-        <TextBox x:Name="MaxCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="419,311,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" IsReadOnly="True"/>
-        <TextBox x:Name="MinCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="419,343,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" IsReadOnly="True"/>
-        <ProgressBar Name ="optimizationProgressBar" HorizontalAlignment="Left" Height="5" Margin="20,340,0,0" Grid.RowSpan="3" VerticalAlignment="Top" Width="700" Background="{x:Null}" Grid.ColumnSpan="3"/>
-        <Button Name ="SaveToFASTAButton" Content="Save to .FASTA" HorizontalAlignment="Left" Margin="547,311,0,0" Grid.Row="2" VerticalAlignment="Top" Width="173" Click="SaveToFASTAButton_Click"/> 
+        <TextBox x:Name="MaxCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="463,393,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" IsReadOnly="True"/>
+        <TextBox x:Name="MinCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="464,435,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" IsReadOnly="True" RenderTransformOrigin="0.494,1.44"/>
+        <Button Name ="SaveToFASTAButton" Content="Save to .FASTA" HorizontalAlignment="Left" Margin="1117,316,-553,0" Grid.Row="2" VerticalAlignment="Top" Width="173" Click="SaveToFASTAButton_Click"/>
         <Label Content="OR" HorizontalAlignment="Left" Margin="191,58,0,0" VerticalAlignment="Top" FontWeight="Bold" RenderTransformOrigin="0.5,0.05" Width="25" Height="20" FontSize="13"/>
         <Label Content="AND" HorizontalAlignment="Left" Margin="486,55,0,0" VerticalAlignment="Top" FontWeight="Bold" RenderTransformOrigin="0.5,0.05" Width="31" Height="20" FontSize="13"/>
         <Label Content="STEP 1: UPLOAD RANKING AND ORF" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="284" FontWeight="Bold" Margin="0,10,0,0" FontSize="14"/>
         <Label Content="STEP 2: CHOOSE OPTIMIZATION MODE" HorizontalAlignment="Left" Height="20" Margin="0,10,0,0" VerticalAlignment="Top" Width="284" FontWeight="Bold" Grid.Row="1" FontSize="14"/>
         <Label Content="STEP 3: OPTIMIZE ORF" HorizontalAlignment="Left" Height="20" Margin="0,10,0,0" VerticalAlignment="Top" Width="284" FontWeight="Bold" Grid.Row="2" FontSize="14"/>
-        <Label Content="OR/AND" HorizontalAlignment="Left" Height="20" Margin="191,63,0,0" Grid.Row="1" VerticalAlignment="Top" Width="60" FontSize="13" FontWeight="Bold"/>
-        <Label Content="ORIGINAL CPB:" HorizontalAlignment="Left" Margin="20,311,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
-        <Label Content="MAXIMALIZED CPB:" HorizontalAlignment="Left" Margin="265,311,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="149" FontSize="14"/>
-        <Label Content="MINIMALIZED CPB:" HorizontalAlignment="Left" Margin="265,343,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="149" FontSize="14"/>
-        <Button x:Name ="RemoveSelectedButton" Content="Remove selected" HorizontalAlignment="Left" Margin="547,348,0,0" Grid.Row="2" VerticalAlignment="Top" Width="173" Click="RemoveSelectedButton_Click"/>
-        <ProgressBar Name="OptimizationProgressBar" HorizontalAlignment="Left" Height="6" Margin="20,89,0,0" Grid.Row="2" VerticalAlignment="Top" Width="700"/>
+        <Label Content="OR" HorizontalAlignment="Left" Height="20" Margin="174,61,0,0" Grid.Row="1" VerticalAlignment="Top" Width="26" FontSize="13" FontWeight="Bold"/>
+        <Label Content="ORIGINAL CPB:" HorizontalAlignment="Left" Margin="20,321,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
+        <Label Content="LAST MAXIMIZED CPB:" HorizontalAlignment="Left" Margin="285,399,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="149" FontSize="14"/>
+        <Label Content="LAST MINIMIZED CPB:" HorizontalAlignment="Left" Margin="285,441,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="149" FontSize="14" RenderTransformOrigin="-0.997,0.5"/>
+        <Button x:Name ="RemoveSelectedButton" Content="Remove selected" HorizontalAlignment="Left" Margin="1117,363,-552,0" Grid.Row="2" VerticalAlignment="Top" Width="173" Click="RemoveSelectedButton_Click"/>
+        <ProgressBar Name="OptimizationProgressBar" HorizontalAlignment="Left" Height="6" Margin="20,89,-554,0" Grid.Row="2" VerticalAlignment="Top" Width="1270"/>
         <RadioButton Name ="MaximalizeRadioButton" Content="Maximalize CPB" HorizontalAlignment="Left" Height="20" Margin="20,61,0,0" Grid.Row="1" VerticalAlignment="Top" Width="133"/>
-        <RadioButton Name ="MinimalizeRadioButton" Content="Minimalize CPB" HorizontalAlignment="Left" Height="20" Margin="287,63,0,0" Grid.Row="1" VerticalAlignment="Top" Width="163"/>
+        <RadioButton Name ="MinimalizeRadioButton" Content="Minimalize CPB" HorizontalAlignment="Left" Height="20" Margin="219,61,0,0" Grid.Row="1" VerticalAlignment="Top" Width="163"/>
+        <TextBox x:Name="NcScoreTextBox" Height="25" Margin="924,309,-247,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True"/>
+        <Label Content="Effective number of codons:" HorizontalAlignment="Left" Margin="606,315,-46,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="198" FontSize="14" RenderTransformOrigin="-1.309,0.763"/>
+        <Label Content="BEST MAXIMIZED CPB:" HorizontalAlignment="Left" Margin="286,319,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="148" FontSize="14"/>
+        <Label Content="BEST MINIMIZED CPB:" HorizontalAlignment="Left" Margin="286,356,0,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="149" FontSize="14" RenderTransformOrigin="-0.997,0.5"/>
+        <Label Content="Effective number of codons (optimized):" HorizontalAlignment="Left" Margin="606,352,-117,0" Grid.Row="2" VerticalAlignment="Top" FontWeight="Bold" Width="272" FontSize="14" RenderTransformOrigin="-1.309,0.763"/>
+        <TextBox x:Name="NcScoreOptimizedTextBox" HorizontalAlignment="Left" Height="25" Margin="924,352,-250,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" IsReadOnly="True"/>
+        <TextBox x:Name="BestMaxCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="464,316,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" RenderTransformOrigin="0.506,0.68" IsReadOnly="True"/>
+        <TextBox x:Name="BestMinCPBscoreTextBox" HorizontalAlignment="Left" Height="25" Margin="464,352,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" RenderTransformOrigin="0.506,0.68" IsReadOnly="True"/>
     </Grid>
 </UserControl>
