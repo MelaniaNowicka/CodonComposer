@@ -113,43 +113,39 @@ namespace CodonOptimizer.Classes
             aminoAcidsPairs = new List<string>();
             aminoAcids = new List<string>();
 
-            int stop = 0;
-
-                foreach (string codon in this.orfeome)
+            foreach (string codon in this.orfeome)
+            {
+                // stop codons elimination
+                if ((codon != "TGA" && codon != "TGA") &&
+                    (codon != "TAA" && codon != "TAA") &&
+                    (codon != "TAG" && codon != "TAG"))
                 {
-                    // stop codons elimination
-                    if ((codon != "TGA" && codon != "TGA") &&
-                        (codon != "TAA" && codon != "TAA") &&
-                        (codon != "TAG" && codon != "TAG"))
+                    if (n != 0)
                     {
-
-                        if (n != 0)
+                        // adding codons pairs
+                        if ((orfeome[n - 1] != "TGA" && orfeome[n - 1] != "TGA") &&
+                            (orfeome[n - 1] != "TAA" && orfeome[n - 1] != "TAA") &&
+                            (orfeome[n - 1] != "TAG" && orfeome[n - 1] != "TAG"))
                         {
-                            // adding codons pairs
-                            if ((orfeome[n - 1] != "TGA" && orfeome[n - 1] != "TGA") &&
-                                (orfeome[n - 1] != "TAA" && orfeome[n - 1] != "TAA") &&
-                                (orfeome[n - 1] != "TAG" && orfeome[n - 1] != "TAG"))
-                            {
-                                this.codonPairs.Add(orfeome[n - 1] + codon);
+                            this.codonPairs.Add(orfeome[n - 1] + codon);
 
-                                // adding amino acids pairs
-                                aminoPair = SeqParser.codonToAmino[orfeome[n - 1]].ToString()
-                                            + SeqParser.codonToAmino[codon].ToString();
+                            // adding amino acids pairs
+                            aminoPair = SeqParser.codonToAmino[orfeome[n - 1]].ToString()
+                                        + SeqParser.codonToAmino[codon].ToString();
 
-                                this.aminoAcidsPairs.Add(aminoPair);
-                            }
+                            this.aminoAcidsPairs.Add(aminoPair);
                         }
-                        // adding codons
-                        //outSeq.WriteLine(seqTemp.Substring(i, 3) + "\n");
-                        this.codons.Add(codon);
-
-                        //adding amino acids
-                        amino = SeqParser.codonToAmino[codon].ToString();
-                        this.aminoAcids.Add(amino);
                     }
-                    else { stop++; }
-                    n++;
+                    // adding codons
+                    //outSeq.WriteLine(seqTemp.Substring(i, 3) + "\n");
+                    this.codons.Add(codon);
+
+                    //adding amino acids
+                    amino = SeqParser.codonToAmino[codon].ToString();
+                    this.aminoAcids.Add(amino);
                 }
+                n++;
+            }
         }
 
         /// <summary>
@@ -260,12 +256,10 @@ namespace CodonOptimizer.Classes
                 c2 = codonPair.Substring(3, 3).ToString();
 
                 // fa, fb definition
-
                 fa = codonCounts[c1];
                 fb = codonCounts[c2];
 
                 // fx, fy definition
-
                 fx = aminoAcidCounts[SeqParser.codonToAmino[c1].ToString()];
                 fy = aminoAcidCounts[SeqParser.codonToAmino[c2].ToString()];
 

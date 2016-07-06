@@ -34,12 +34,14 @@ namespace CodonOptimizer.Pages
             MaximalizeRadioButton.IsEnabled = false;
             MinimalizeRadioButton.IsEnabled = false;
             MaximalizeRadioButton.IsChecked = true;
-            Optimizer.ReproductiveCyclesNumber = 1000;
-            Optimizer.PopulationSize = 50;
-            Optimizer.TournamentSize = 25;
-            Optimizer.MinimalNc = 1.0;
-            Optimizer.MaximalNc = 1.0;
             Optimizer = new Optimizer();
+            if (Optimizer.ReproductiveCyclesNumber == 0)
+            {
+                Optimizer.ReproductiveCyclesNumber = 1000;
+                Optimizer.PopulationSize = 50;
+                Optimizer.TournamentSize = 25;
+                Optimizer.StopCriterion = 25;
+            }
             minScores = new List<double>();
             maxScores = new List<double>();
         }
