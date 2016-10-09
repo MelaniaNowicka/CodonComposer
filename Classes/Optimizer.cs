@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -155,7 +156,17 @@ namespace CodonOptimizer.Classes
         /// <returns></returns>
         private string randomizeCodon(string amino)
         {
-            string codon = codonGroups[amino][rnd.Next(0, codonGroups[amino].Count())];
+            string codon;
+
+            if (codonGroups[amino].Count() != 1)
+            {
+                codon = codonGroups[amino][rnd.Next(0, codonGroups[amino].Count())];
+            }
+            else
+            {
+                codon = codonGroups[amino][0];
+            }
+
             return codon;
         }
 
@@ -196,7 +207,7 @@ namespace CodonOptimizer.Classes
         }
 
         /// <summary>
-        /// 
+        /// A-homopolymers index checking
         /// </summary>
         /// <param name="orf"></param>
         private List<KeyValuePair<int, int>> HomopolymersCheck(List<string> AminoORFseq)
@@ -204,14 +215,14 @@ namespace CodonOptimizer.Classes
             List<KeyValuePair<int, int>> lysineIdx = new List<KeyValuePair<int, int>>();
             int start = 0, stop = 0;
 
-            for (int i = 1; i < AminoORFseq.Count() - 1; i++)
+            for (int i = 2; i < AminoORFseq.Count() - 2; i++)
             {
-                if(AminoORFseq[i-1] != "K" && AminoORFseq[i] == "K" && AminoORFseq[i+1] == "K")
+                if (AminoORFseq[i - 1] != "K" && AminoORFseq[i] == "K" && AminoORFseq[i + 1] == "K" && AminoORFseq[i + 2] == "K")
                 {
                     start = i;
                 }
 
-                if (AminoORFseq[i - 1] == "K" && AminoORFseq[i] == "K" && AminoORFseq[i + 1] != "K")
+                if (AminoORFseq[i - 2] == "K" && AminoORFseq[i - 1] == "K" && AminoORFseq[i] == "K" && AminoORFseq[i + 1] != "K")
                 {
                     stop = i;
                 }
@@ -262,6 +273,8 @@ namespace CodonOptimizer.Classes
             {
                 string elem = matches.ElementAt(rnd.Next(0, matches.Count()));        
                 orf[changeIdx] = elem;
+                Console.WriteLine("Kodon: " + elem + " na miejsce:" + changeIdx);
+
             }
         }
 
@@ -369,6 +382,11 @@ namespace CodonOptimizer.Classes
                     }
 
                     Population.Add(tempIndividual);
+                    for (int j = 0; j < tempIndividual.Count; j++ )
+                    {
+                        Console.Write(tempIndividual[j]);
+                    }
+
                     PopulationScores.Add(ORF.CPBcalculator(tempIndividual));
 
                     BestScore = PopulationScores[0];
@@ -517,6 +535,38 @@ namespace CodonOptimizer.Classes
             for (int i = 0; i < end; i++)
             {
                 FirstParentIdx = rnd.Next(0, Population.Count());
+
+                //Restricion enzymes sites removal
+                if (RestrEnzymeSitesToRemoval == true)
+                {
+                    allowed = false;
+
+                    while (allowed == false)
+                    {
+                        allowed = enzymeSitesRemove(Population[FirstParentIdx], allowed, i);
+                    }
+
+                }
+
+                //Homopolymers removal
+                if (AHomopolymersRemoval == true)
+                {
+                    HomopolymersRemove(Population[FirstParentIdx]);
+
+                    allowed = false;
+
+                    //Restricion enzymes sites removal
+                    if (RestrEnzymeSitesToRemoval == true)
+                    {
+                        allowed = false;
+
+                        while (allowed == false)
+                        {
+                            allowed = enzymeSitesRemove(Population[FirstParentIdx], allowed, i);
+                        }
+                    }
+                }
+
                 NewPopulation.Add(Population[FirstParentIdx]);
                 NewPopulationScores.Add(PopulationScores[FirstParentIdx]);
                 Population.RemoveAt(FirstParentIdx);
@@ -565,7 +615,6 @@ namespace CodonOptimizer.Classes
                 }
 
                 //Restricion enzymes sites removal
-
                 if (RestrEnzymeSitesToRemoval == true)
                 {
                     allowed = false;
@@ -581,6 +630,7 @@ namespace CodonOptimizer.Classes
                     {
                         allowed = enzymeSitesRemove(SecondNewIndividual, allowed, i);
                     }
+
                 }
 
                 //Homopolymers removal

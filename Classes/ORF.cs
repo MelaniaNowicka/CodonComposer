@@ -87,7 +87,15 @@ namespace CodonOptimizer.Classes
 
                 if (i != 0 && codon != "TGA" && codon != "TAA" && codon != "TAG")
                 {
-                    cpb += CCranking.CCranker.cps[orf[i - 1] + codon];
+                    bool elemExists = CCranking.CCranker.cps.ContainsKey(orf[i - 1] + codon);
+                    if (elemExists == true)
+                    {
+                        cpb += CCranking.CCranker.cps[orf[i - 1] + codon];
+                    }
+                    else
+                    {
+                        cpb += 0;
+                    }
                 }
                 i++;
             }

@@ -18,6 +18,7 @@ using System.Data;
 using System.IO;
 using Microsoft.VisualBasic.FileIO;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace CodonOptimizer.Pages
 {
@@ -40,7 +41,7 @@ namespace CodonOptimizer.Pages
                 Optimizer.ReproductiveCyclesNumber = 1000;
                 Optimizer.PopulationSize = 50;
                 Optimizer.TournamentSize = 25;
-                Optimizer.StopCriterion = 25;
+                Optimizer.StopCriterion = Optimizer.ReproductiveCyclesNumber;
             }
             minScores = new List<double>();
             maxScores = new List<double>();
@@ -134,6 +135,8 @@ namespace CodonOptimizer.Pages
             this.openFileDialog.Title = "Save .FASTA..."; // title text
         }
 
+        public string file_seq;
+
         /// <summary>
         /// LoadORFButton Click event handler
         /// </summary>
@@ -154,10 +157,9 @@ namespace CodonOptimizer.Pages
                 //new ORF object
                 ORF = new ORF();
 
-                string file = openFileDialog.FileName; // file handler
-
+                file_seq = openFileDialog.FileName; // file handler
                 // sequenceParser method initialization
-                var tupleTemp = SeqParser.sequenceParser(file);
+                var tupleTemp = SeqParser.sequenceParser(file_seq);
 
                 if (tupleTemp.Item2 != 1)
                 {
@@ -278,8 +280,139 @@ namespace CodonOptimizer.Pages
         /// </summary>
         private void optimizationInitialization(object sender, DoWorkEventArgs e)
         {
-            optimizedORF = new List<string>();
-            optimizedORF = Optimizer.optimizeORF(ORF, sender, e);
+            //TESTS
+            Stopwatch sw;
+            int[] Rc = new int[] { 1000, 1500, 2000, 2500, 3000, 3500 };
+            int[] Ps = new int[] { 50, 100, 200, 300, 400, 500, 600 };
+            double[] Cp = new double[] { 0.1, 0.25, 0.35, 0.5, 0.75, 0.85, 1.0 };
+            double[] Ts = new double[] { 0.01, 0.02 };
+            double[] Mp = new double[] { 0.75, 1.0 };
+            double[] Ks = new double[] { 0.01, 0.02, 0.05, 0.1, 0.25, 0.35, 0.5, 0.75, 0.85 };
+
+
+            //Reproduction cycles + Stop criterion
+            /*for (int a = 0; a < 6; a++)
+            {
+                Optimizer.ReproductiveCyclesNumber = Rc[a];
+                using (StreamWriter writetext = new StreamWriter(System.IO.Path.Combine(file_seq + "_Rc.csv",""), true))
+                { writetext.WriteLine("Cykle" + ";" + Optimizer.ReproductiveCyclesNumber); }
+            
+                    for (int j = 0; j < 10; j++)
+                    {
+                        sw = new Stopwatch();
+                        sw.Start();*/
+                        optimizedORF = new List<string>();
+                        optimizedORF = Optimizer.optimizeORF(ORF, sender, e);
+              /*          sw.Stop();
+                        using (StreamWriter writetext = new StreamWriter(System.IO.Path.Combine(file_seq + "_Rc.csv",""), true))
+                        {
+                            writetext.WriteLine(sw.Elapsed + ";" + ORF.CPBcalculator(optimizedORF) + ";" + ORF.NcCalculator(optimizedORF, ORF.aminoAcidCounts));
+                        }
+                    }
+            }*/
+
+            /*
+            // Population size
+            for (int b = 0; b < 4; b++)
+            {
+                Optimizer.PopulationSize = Ps[b];
+                using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp_Ps.csv", true))
+                { writetext.WriteLine("PopulationSize" + ";" + Optimizer.PopulationSize); }
+
+                for (int j = 0; j < 10; j++)
+                {
+                    optimizedORF = new List<string>();
+                    sw.Start();
+                    optimizedORF = Optimizer.optimizeORF(ORF, sender, e);
+                    sw.Stop();
+                    using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp_Ps.csv", true))
+                    {
+                        writetext.WriteLine(sw.Elapsed + ";" + ORF.CPBcalculator(optimizedORF) + ";" + ORF.NcCalculator(optimizedORF, ORF.aminoAcidCounts));
+                    }
+                }
+            }
+
+
+            //Population size + Tournament size
+            for (int b = 0; b < 4; b++)
+            {
+                Optimizer.PopulationSize = Ps[b];
+                using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp_Ps_Ts.csv", true))
+                { writetext.WriteLine("PopulationSize" + ";" + Optimizer.PopulationSize); }
+
+                for (int c = 0; c < 4; c++)
+                {
+                    Optimizer.TournamentSize = (int)(Ts[c] * Optimizer.PopulationSize);
+                    using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp_Ps_Ts.csv", true))
+                    { writetext.WriteLine("TournamentSize" + ";" + Optimizer.TournamentSize); }
+                    for (int j = 0; j < 10; j++)
+                    {
+                        optimizedORF = new List<string>();
+                        sw.Start();
+                        optimizedORF = Optimizer.optimizeORF(ORF, sender, e);
+                        sw.Stop();
+                        using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp_Ps_Ts.csv", true))
+                        {
+                            writetext.WriteLine(sw.Elapsed + ";" + ORF.CPBcalculator(optimizedORF) + ";" + ORF.NcCalculator(optimizedORF, ORF.aminoAcidCounts));
+                        }
+                    }
+                }
+            }
+
+
+            for (int a = 0; a < 5; a++)
+            {
+                Optimizer.ReproductiveCyclesNumber = Rc[a];
+                using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp.csv", true))
+                { writetext.WriteLine("ReproductiveCyclesNumber"  + ";" +  Optimizer.ReproductiveCyclesNumber); }
+
+                for (int b = 0; b < 4; b++)
+                {
+                    Optimizer.PopulationSize = Ps[b];
+                    using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp.csv", true))
+                    { writetext.WriteLine("PopulationSize" + ";" + Optimizer.PopulationSize); }
+
+                    for (int c = 0; c < 4; c++)
+                    {
+                        Optimizer.TournamentSize = (int)(Ts[c] * Optimizer.PopulationSize);
+                        using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp.csv", true))
+                        { writetext.WriteLine("TournamentSize" + ";" + Optimizer.TournamentSize); }
+
+                        for (int d = 0; d < 5; d++)
+                        {
+                            Optimizer.MutationProbability = (float)Mp[d];
+                            using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp.csv", true))
+                            { writetext.WriteLine("MutationProbability" + ";" + Optimizer.MutationProbability); }
+
+                            for (int g = 0; g < 5; g++)
+                            {
+                                Optimizer.CrossoverProbability = (float)Cp[g];
+                                using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp.csv", true))
+                                { writetext.WriteLine("CrossoverProbability" + ";" + Optimizer.CrossoverProbability); }
+
+                                for (int h = 0; h < 4; h++)
+                                {
+                                    Optimizer.StopCriterion = (int)(Ks[h] * Optimizer.ReproductiveCyclesNumber);
+                                    using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp.csv", true))
+                                    { writetext.WriteLine("StopCriterion" + ";" + Optimizer.StopCriterion); }
+
+                                    for (int j = 0; j < 10; j++)
+                                    {
+                                        optimizedORF = new List<string>();
+                                        sw.Start();
+                                        optimizedORF = Optimizer.optimizeORF(ORF, sender, e);
+                                        sw.Stop();
+                                        using (StreamWriter writetext = new StreamWriter("D:/Test_igem_gfp.csv", true))
+                                        {
+                                            writetext.WriteLine(sw.Elapsed + ";" + ORF.CPBcalculator(optimizedORF) + ";" + ORF.NcCalculator(optimizedORF, ORF.aminoAcidCounts));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }*/
         }
 
         /// <summary>

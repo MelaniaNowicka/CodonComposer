@@ -274,7 +274,8 @@ namespace CodonOptimizer.Classes
             {
                 foreach (KeyValuePair<string, double> c in cps)
                 {
-                    outFile.WriteLine(c.Key + ";" + c.Value + ";");
+                    outFile.WriteLine(c.Key + ";" + c.Value);
+                    //outFile.WriteLine(SeqParser.codonToAmino[c.Key.Substring(0, 3).ToString()] + SeqParser.codonToAmino[c.Key.Substring(3, 3).ToString()] + ";" + c.Key + ";" + c.Value);
                 }
             }
         }

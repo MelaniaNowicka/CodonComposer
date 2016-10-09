@@ -101,8 +101,8 @@ namespace CodonOptimizer.Pages
             // show openFileDialog file dialog
             Nullable<bool> openResult = openFileDialog.ShowDialog();
 
-            if (openResult == true)
-            {
+            //if (openResult == true)
+            //{
                 string file = openFileDialog.FileName; // file handler
 
                 // sequenceParser method initialization
@@ -116,13 +116,13 @@ namespace CodonOptimizer.Pages
                 {
                     ORFeomeInfoRichTextBox.AppendText(CCranker.cdsCount.ToString());
                 }
-            }
+            /*}
             else
             {
                 // modern dialog initialization
                 string message = "Something went wrong. Probably you tried to use an improper file. Try again. \nFor more information about using Codon Context Ranking check the \"How to use\" page.";
                 ModernDialog.ShowMessage(message.ToString(), "Warning", MessageBoxButton.OK);
-            }
+            }*/
         }
 
 
@@ -190,7 +190,7 @@ namespace CodonOptimizer.Pages
         void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             CPSRichTextBox.AppendText("Calculation is completed. Check files in previously selected directory.\n");
-            CPSRichTextBox.AppendText("cCounts - single codon counts\naCounts - single amino acids counts\ncpCounts - codon pair counts\napCounts - amino acid pairs counts\nCPSores - Codon Pair Scores\n");
+            CPSRichTextBox.AppendText("cCounts - single codon counts\naCounts - single amino acids counts\ncpCounts - codon pair counts\napCounts - amino acid pairs counts\nCPScores - Codon Pair Scores\n");
             CPSRichTextBox.AppendText("For more information, please, check 'How To Use' page\n");
 
             // verification of ranking correctness

@@ -39,7 +39,7 @@
                 </ToolTip>
             </RichTextBox.ToolTip>
         </RichTextBox>
-        <Button Name="CCrankButton" Content="Calculate codon context rank" HorizontalAlignment="Left" VerticalAlignment="Top" Width="700" Height="50" Margin="20,141,-87,0" Click="CCrankButton_Click">
+        <Button Name="CCrankButton" Content="Calculate codon context ranking" HorizontalAlignment="Left" VerticalAlignment="Top" Width="700" Height="50" Margin="20,141,-87,0" Click="CCrankButton_Click">
             <Button.ToolTip>
                 <ToolTip>
                     <StackPanel>

@@ -1,0 +1,769 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CodonComposer</name>
+    </assembly>
+    <members>
+        <member name="T:CodonOptimizer.App">
+            <summary>
+            Interaction logic for App.xaml
+            </summary>
+            <summary>
+            App
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.App.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.App.Main">
+            <summary>
+            Application Entry Point.
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.orfeome">
+            <summary>
+            ORFeome from file to list
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.codonPairs">
+            <summary>
+            CodonPairs list object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.codons">
+            <summary>
+            Codons list object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.aminoAcidsPairs">
+            <summary>
+            AminoAcidsPairs object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.aminoAcids">
+            <summary>
+            AminoAcids object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.cps">
+            <summary>
+            CPS dictionary
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.fileName">
+            <summary>
+            CC ranking file name
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.path">
+            <summary>
+            Path for saving files
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.codonPairCounts">
+            <summary>
+            Dictionary CodonPairCounts declaration
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.codonCounts">
+            <summary>
+            Dictionary CodonCounts declaration
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.aminoAcidPairCounts">
+            <summary>
+            Dictionary AminoAcidPairCounts declaration
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.CCranker.aminoAcidCounts">
+            <summary>
+            Dictionary AminoAcidCounts declaration
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.CCranker.SequencesToList">
+            <summary>
+            SequencesToList method 
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.CCranker.ElemCounter">
+            <summary>
+            elemCounter method
+            method for counting elements (codons, codon pairs, aminos, amino pairs) in lists
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.CCranker.CPScalculator(System.Object,System.ComponentModel.DoWorkEventArgs)">
+            <summary>
+            CPScounter method
+            method for calculating CPS
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.GeneticCode.oneFoldFamilies">
+            <summary>
+            Dictionary for 1-fold codon families
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.GeneticCode.twoFoldFamilies">
+            <summary>
+            Dictionary for 2-fold codon families
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.GeneticCode.threeFoldFamilies">
+            <summary>
+            Dictionary for 3-fold codon families
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.GeneticCode.fourFoldFamilies">
+            <summary>
+            Dictionary for 4-fold codon families
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.GeneticCode.UploadGeneticCode">
+            <summary>
+            Method for genetic code upload
+            </summary>
+        </member>
+        <member name="T:CodonOptimizer.Classes.Optimizer">
+            <summary>
+            A class for optimization of ORF
+            includes implementation of genetic algorithm
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.lysineIdx">
+            <summary>
+            lysine homopolymers indexes (start, stop) of long A-homopolymers
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.Population">
+            <summary>
+            Population of individuals
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.NewPopulation">
+            <summary>
+            New population of individuals
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.PopulationScores">
+            <summary>
+            Individuals scores
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.NewPopulationScores">
+            <summary>
+            Scores for new population after selection
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.BestScore">
+            <summary>
+            Best score
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.BestIndividual">
+            <summary>
+            Best individual
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.codonGroups">
+            <summary>
+            Codons grouped by amino acids
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.Optimizer.rnd">
+            <summary>
+            Random declaration
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.randomizeCodon(System.String)">
+            <summary>
+            Method for codon randomization
+            Randomizaton of codon for given amino acid
+            </summary>
+            <param name="amino"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.updateBestIndividual">
+            <summary>
+            method for updating best individual and best score
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.HomopolymersCheck(System.Collections.Generic.List{System.String})">
+            <summary>
+            A-homopolymers index checking
+            </summary>
+            <param name="orf"></param>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.HomopolymersRemove(System.Collections.Generic.List{System.String})">
+            <summary>
+            Method for homopolymers removal
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.changeCodon(System.Int32,System.Collections.Generic.List{System.String},System.Int32)">
+            <summary>
+            Method for swapping codons
+            </summary>
+            <param name="idx"></param>
+            <param name="orf"></param>
+            <param name="range"></param>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.enzymeSitesRemove(System.Collections.Generic.List{System.String},System.Boolean,System.Int32)">
+            <summary>
+            Method for restriction enzyme sites removal
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.generateInitialPopulation(CodonOptimizer.Classes.ORF)">
+            <summary>
+            Method for generation of initial population
+            </summary>
+            <param name="AminoORFseq"></param>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.selectIndividualsForCrossover(System.Int32)">
+            <summary>
+            Method for selection of the best individuals for crossover (tourtnament selection)
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.crossover(CodonOptimizer.Classes.ORF,System.Double,System.Double)">
+            <summary>
+            Method for crossover (uniform crossover)
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.mutate(System.Collections.Generic.List{System.String},System.Int32,CodonOptimizer.Classes.ORF)">
+            <summary>
+            Method for mutation
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.Optimizer.optimizeORF(CodonOptimizer.Classes.ORF,System.Object,System.ComponentModel.DoWorkEventArgs)">
+            <summary>
+            ORF optimization
+            </summary>
+            <param name="ORFSeq"></param>
+            <param name="AminoORFseq"></param>
+            <param name="optimizationMode"></param>
+            <returns></returns>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.OptimizationMode">
+            <summary>
+            Optimization mode (1 - maximalization, 0 - minimalization)
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.PopulationSize">
+            <summary>
+            Population size
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.ReproductiveCyclesNumber">
+            <summary>
+            Number of reproductive cycles
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.MutationProbability">
+            <summary>
+            Probability of mutation
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.CrossoverProbability">
+            <summary>
+            Probability of crossover
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.TournamentSize">
+            <summary>
+            Size of tournament
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.StopCriterion">
+            <summary>
+            Additional stop criterion 
+            (a number of reproduction cycles ehich not generate improvement)
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.AHomopolymersRemoval">
+            <summary>
+            Flag for A-homopolymers removal
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.NcRestrictions">
+            <summary>
+            Flag for Nc optimization
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.MaintainOriginalNc">
+            <summary>
+            Flag for Nc maintenance
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.MinimalNc">
+            <summary>
+            Minimal Nc value
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.MaximalNc">
+            <summary>
+            Maximal Nc value
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.RestrEnzymeSitesToRemoval">
+            <summary>
+            Flag for restriction enzyme sites to removal
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Classes.Optimizer.EnzymeSitesToRemoval">
+            <summary>
+            Enzmes Sites to removal 
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.ORF.orfSeq">
+            <summary>
+            ORF list of codons 
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.ORF.aminoORFseq">
+            <summary>
+            ORF list of mino acids
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.ORF.aminoAcidCounts">
+            <summary>
+            Counts of amino acids for ORF
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.ORF.cpb">
+            <summary>
+            CPB score
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.ORF.nc">
+            <summary>
+            NC score
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.ORF.CPBcalculator(System.Collections.Generic.List{System.String})">
+            <summary>
+            CPBcalculator method
+            method for CPB calculation
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CodonOptimizer.Classes.ORF.NcCalculator(System.Collections.Generic.List{System.String},System.Collections.Generic.Dictionary{System.String,System.Int32})">
+            <summary>
+            NCcalculator method
+            Method for Nc calculation
+            </summary>
+            <param name="orf"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CodonOptimizer.Classes.ORF.NcKiCodonFamiliesCalculator(System.Int32,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Collections.Generic.Dictionary{System.String,System.Int32},System.Collections.Generic.Dictionary{System.String,System.Int32})">
+            <summary>
+            Method for partial NC calculations
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CodonOptimizer.Classes.ORF.FcfCalculator(System.Collections.Generic.List{System.String},System.Int32,System.Collections.Generic.Dictionary{System.String,System.Int32},System.Int32)">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:CodonOptimizer.Classes.SeqParser.parser">
+            <summary>
+            ORF parser
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Classes.SeqParser.codonToAmino">
+            <summary>
+            Codons to Amino acids dictionary
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Classes.SeqParser.getString(Bio.ISequence)">
+            <summary>
+            getString method
+            Returns full fragment sequence as a string. Based on .NET Bio Programming Guide.
+            </summary>
+            <returns>Sequence string.</returns>
+        </member>
+        <member name="M:CodonOptimizer.Classes.SeqParser.sequenceParser(System.String)">
+            <summary>
+            sequenceParser method
+            method for parsing sequences from file
+            return tuple(list of codons, number of cds's)
+            </summary>
+            <param name="file"></param>
+        </member>
+        <member name="M:CodonOptimizer.Classes.SeqParser.codonToAminoParser(System.Collections.Generic.List{System.String})">
+            <summary>
+            codonToAminoParser method
+            method for translating codons to amino acids
+            </summary>
+            <param name="list"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CodonOptimizer.MainWindow">
+            <summary>
+            Interaction logic for MainWindow.xaml
+            </summary>
+            <summary>
+            MainWindow
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.MainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:CodonOptimizer.Pages.About">
+            <summary>
+            Interaction logic for About.xaml
+            </summary>
+            <summary>
+            About
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.About.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:CodonOptimizer.Pages.CCranking">
+            <summary>
+            
+            </summary>
+            <summary>
+            CCranking
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.CCranking.openFileDialog">
+            <summary>
+            OpenFileDialog object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.CCranking.saveFileDialog">
+            <summary>
+            SaveFileDialog object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.CCranking.worker">
+            <summary>
+            Background worker
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.CCranking.currentRankingCheckBoxIsEnabled">
+            <summary>
+            Flag for checkbox enabling
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.CCranking.OpenFileDialogInitialize">
+            <summary>
+            openFileDialog initialization method
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.CCranking.SaveFileDialogInitialize">
+            <summary>
+            saveFileDialog
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.CCranking.AddORFeomeButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            addORFeomeButton click event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.CCranking.CCrankButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            CCrankButton click event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.CCranking.worker_ProgressChanged(System.Object,System.ComponentModel.ProgressChangedEventArgs)">
+            <summary>
+            ProgressChanged handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.CCranking.worker_RunWorkerCompleted(System.Object,System.ComponentModel.RunWorkerCompletedEventArgs)">
+            <summary>
+            RunWorkerCompleted handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.CCranking.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Pages.CCranking.CCranker">
+            <summary>
+            CCranking object
+            </summary>
+        </member>
+        <member name="T:CodonOptimizer.Pages.HowToUse">
+            <summary>
+            Interaction logic for HowToUse.xaml
+            </summary>
+            <summary>
+            HowToUse
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.HowToUse.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:CodonOptimizer.Pages.Optimization">
+            <summary>\
+            </summary>
+            <summary>
+            Optimization
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.worker">
+            <summary>
+            Background worker
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.optimizedORF">
+            <summary>
+            maximalized ORF object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.extensions">
+            <summary>
+            A string of extensions for initializeOpenFileDialog method
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.textBox">
+            <summary>
+            temporary TextBox
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.Data">
+            <summary>
+            DataTable object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.openResult">
+            <summary>
+            Dialog results
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.openFileDialog">
+            <summary>
+            OpenFileDialog object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.saveFileDialog">
+            <summary>
+            SaveFileDialog object
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.minScores">
+            <summary>
+            List of minimal scores
+            </summary>
+        </member>
+        <member name="F:CodonOptimizer.Pages.Optimization.maxScores">
+            <summary>
+            List of maximal scores
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.initializeOpenFileDialog(System.String)">
+            <summary>
+            OpenFileDialog initialization method
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.saveFileDialogInitialize(System.String)">
+            <summary>
+            saveFileDialog
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.LoadORFButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            LoadORFButton Click event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.CalculateAndDisplayORF(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.String})">
+            <summary>
+            Method for calculating and displaying 
+            </summary>
+            <param name="orf"></param>
+            <param name="amino"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.UploadRankingButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            UploadRankingButton_Click event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.optimizationInitialization(System.Object,System.ComponentModel.DoWorkEventArgs)">
+            <summary>
+            initialization of optimization
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.OptimizeORFButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            OptimizeORFButton_Click event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.worker_RunWorkerCompleted(System.Object,System.ComponentModel.RunWorkerCompletedEventArgs)">
+            <summary>
+            worker_RunWorkerCompleted 
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.worker_ProgressChanged(System.Object,System.ComponentModel.ProgressChangedEventArgs)">
+            <summary>
+            worker_ProgressChanged
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.CurrentRankingCheckBox_Checked(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            CurrentRankingCheckBox_Checked event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.CurrentRankingCheckBox_Unchecked(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            CurrentRankingCheckBox_UnChecked event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.OptimizationPage_IsVisibleChanged(System.Object,System.Windows.DependencyPropertyChangedEventArgs)">
+            <summary>
+            Checking stuff when page is visible 
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.SaveToFASTAButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            SaveToFASTAButton_Click event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.RemoveSelectedButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+             RemoveSelectedButton_Click event handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Optimization.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Pages.Optimization.ORF">
+            <summary>
+            ORF object
+            </summary>
+        </member>
+        <member name="P:CodonOptimizer.Pages.Optimization.Optimizer">
+            <summary>
+            Optimizer object
+            </summary>
+        </member>
+        <member name="T:CodonOptimizer.Pages.Parameters">
+            <summary>
+            Interaction logic for Parameters.xaml
+            </summary>
+            <summary>
+            Parameters
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.ImportEnzymes">
+            <summary>
+            Enzymes import from file.
+            </summary>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.AdditionalParametersCheckbox_Checked(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            AdditionalParametersCheckbox_Checked handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.AdditionalParametersCheckbox_Unchecked(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            AdditionalParametersCheckbox_Unchecked handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.PopulationSizeTextBox_TextChanged(System.Object,System.Windows.Controls.TextChangedEventArgs)">
+            <summary>
+            PopulationSizeTextbox_TextChanged handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.ReproductionCyclesTextBox_TextChanged(System.Object,System.Windows.Controls.TextChangedEventArgs)">
+            <summary>
+            ReproductionCyclesTextbox_TextChanged handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.TournamentSizeTextBox_TextChanged(System.Object,System.Windows.Controls.TextChangedEventArgs)">
+            <summary>
+            TournamentSizeTextbox_TextChanged handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.StopCriterionTextBox_TextChanged(System.Object,System.Windows.Controls.TextChangedEventArgs)">
+            <summary>
+            StopCriterionTextBox_TextChanged handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.MutationProbabilityTextBox_TextChanged(System.Object,System.Windows.Controls.TextChangedEventArgs)">
+            <summary>
+            MutationProbabilityTextBox_TextChanged handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.CrossoverProbabilityTextBox_TextChanged(System.Object,System.Windows.Controls.TextChangedEventArgs)">
+            <summary>
+            CrossoverProbabilityTextBox_TextChanged handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.AddToRemovalButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            AddToRemovalButton_Click handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.UndoAddToRemovalButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            UndoAddToRemovalButton_Click handler
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:CodonOptimizer.Pages.Parameters.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+    </members>
+</doc>

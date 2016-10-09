@@ -15,16 +15,16 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Frame Content="" HorizontalAlignment="Left" Height="261" Margin="21,29,-725,0" VerticalAlignment="Top" Width="939" BorderBrush="#FF333333" BorderThickness="2"/>
-        <Frame Content="" HorizontalAlignment="Left" Height="194" Margin="21,46,-739,0" VerticalAlignment="Top" Width="940" BorderBrush="#FF333333" BorderThickness="2" Grid.Row="1"/>
+        <Frame Content="" HorizontalAlignment="Left" Height="261" Margin="21,29,-560,0" VerticalAlignment="Top" Width="778" BorderBrush="#FF333333" BorderThickness="2"/>
+        <Frame Content="" HorizontalAlignment="Left" Height="194" Margin="21,46,-559,0" VerticalAlignment="Top" Width="778" BorderBrush="#FF333333" BorderThickness="2" Grid.Row="1"/>
         <Label Content="SEQUENCE PARAMETERS" HorizontalAlignment="Left" Height="19" Margin="22,10,-107,0" VerticalAlignment="Top" Width="223" FontWeight="Bold" FontSize="14"/>
         <Label Content="ALGORITHM PARAMETERS" HorizontalAlignment="Left" Height="19" Margin="21,22,-31,0" VerticalAlignment="Top" Width="223" FontWeight="Bold" FontSize="14" RenderTransformOrigin="0.578,1.105" Grid.Row="1"/>
         <Label Content="Population size:" HorizontalAlignment="Left" Height="17" Margin="45,103,-65,0" Grid.Row="1" VerticalAlignment="Top" Width="106" FontWeight="Bold"/>
         <Label Content="Reproduction cycles:" HorizontalAlignment="Left" Height="17" Margin="45,60,-92,0" Grid.Row="1" VerticalAlignment="Top" Width="130" FontWeight="Bold"/>
         <Label Content="Mutation probability:" HorizontalAlignment="Left" Height="17" Margin="45,146,-49,0" Grid.Row="1" VerticalAlignment="Top" Width="141" FontWeight="Bold"/>
         <Label Content="Crossover probability:" HorizontalAlignment="Left" Height="17" Margin="45,187,-50,0" Grid.Row="1" VerticalAlignment="Top" Width="141" FontWeight="Bold"/>
-        <Slider Name ="MutationProbabilitySlider" HorizontalAlignment="Left" Height="17" Margin="247,146,-225,0" Grid.Row="1" VerticalAlignment="Top" Width="95" Maximum="1" SmallChange="0.01"/>
-        <Slider Name ="CrossoverProbabilitySlider" HorizontalAlignment="Left" Height="17" Margin="247,187,-224,0" Grid.Row="1" VerticalAlignment="Top" Width="95" Maximum="1" SmallChange="0.01"/>
+        <Slider Name ="MutationProbabilitySlider" Value="0.10" HorizontalAlignment="Left" Height="17" Margin="247,146,-225,0" Grid.Row="1" VerticalAlignment="Top" Width="95" Maximum="1" SmallChange="0.01" />
+        <Slider Name ="CrossoverProbabilitySlider" Value="0.75" HorizontalAlignment="Left" Height="17" Margin="247,187,-224,0" Grid.Row="1" VerticalAlignment="Top" Width="95" Maximum="1" SmallChange="0.01"/>
         <TextBox Name ="MutationProbabilityTextBox" Text="{Binding ElementName=MutationProbabilitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}" HorizontalAlignment="Left" Height="17" Margin="357,145,-263,0" Grid.Row="1" TextWrapping="Wrap"  VerticalAlignment="Top" Width="34" FontSize="10" TextAlignment="Right" TextChanged="MutationProbabilityTextBox_TextChanged"/>
         <TextBox Name ="CrossoverProbabilityTextBox" Text="{Binding ElementName=CrossoverProbabilitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}" HorizontalAlignment="Left" Height="17" Margin="357,187,-266,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="34" FontSize="10" TextAlignment="Right" TextChanged="CrossoverProbabilityTextBox_TextChanged"/>
         <TextBox Name ="ReproductionCyclesTextBox" HorizontalAlignment="Left" Height="20" Margin="247,62,-262,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Width="144" TextChanged="ReproductionCyclesTextBox_TextChanged" FontSize="11" Text="1000" TextAlignment="Right"/>
@@ -56,7 +56,7 @@
             </TextBox.ToolTip>
         </TextBox>
         <Label Content="Additional restrictions" HorizontalAlignment="Left" Height="25" Margin="45,71,-65,0" VerticalAlignment="Top" Width="222" FontWeight="Bold"/>
-        <CheckBox Name="AHomopolymersRemovalCheckBox" Content="Remove L-homopolymers" HorizontalAlignment="Left" Height="31" Margin="45,96,-12,0" VerticalAlignment="Top" Width="171" Checked="AHomopolymersRemovalCheckBox_Checked" Unchecked="AHomopolymersRemovalCheckBox_Unchecked"/>
+        <CheckBox Name="AHomopolymersRemovalCheckBox" Content="Remove A-homopolymers" HorizontalAlignment="Left" Height="31" Margin="45,96,-12,0" VerticalAlignment="Top" Width="171" Checked="AHomopolymersRemovalCheckBox_Checked" Unchecked="AHomopolymersRemovalCheckBox_Unchecked"/>
         <CheckBox Name="RestrEnzymeSitesToRemovalCheckBox" Content="Remove restriction enzyme sites" HorizontalAlignment="Left" Height="31" Margin="328,63,-356,0" VerticalAlignment="Top" Width="249" FontWeight="Bold" Checked="RestrEnzymeSitesToRemovalCheckBox_Checked" Unchecked="RestrEnzymeSitesToRemovalCheckBox_Unchecked"/>
         <ListBox Name ="RestrictionSitesPoolListBox" HorizontalAlignment="Left" Height="147" Margin="328,108,-233,0" VerticalAlignment="Top" Width="125" BorderThickness="1" Foreground="#FFC1C1C1" SelectionMode="Extended">
             <ListBox.ItemTemplate>
