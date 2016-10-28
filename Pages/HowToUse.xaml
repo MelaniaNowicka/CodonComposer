@@ -5,13 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mui="http://firstfloorsoftware.com/ModernUI"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="800" d:DesignWidth="1000">
+
     <Grid Style="{StaticResource ContentRoot}">
-        <ScrollViewer>
+        <ScrollViewer Margin="0,-17,0,17">
             <StackPanel MinWidth="200">
-                <TextBlock Text="How to use" Style="{StaticResource Heading2}" />
-                <TextBlock Text="The page under construction. For more information please contact by mail: melania.nowicka[at]gmail.com" />
+                <TextBlock Text="How to use" Style="{StaticResource Heading2}"/>
+                <Label Content="CODON CONTEXT RANKING" HorizontalAlignment="Left" Height="19" Margin="10,10,-107,0" VerticalAlignment="Top" Width="246" FontWeight="Bold" FontSize="14"/>
+                <TextBlock Width="1000" Height="62" Margin="10,10,-107,0" HorizontalAlignment="Left"><Run Text="Codon context ranking is calculated based on measure proposed by Papamichail et al. [1]. To generate codon context ranking one have to prepare the file with coding "/><LineBreak/><Run Text="sequences of interest"/><Run Text=" i"/><Run Text="n FASTA format. Then go to the page CODON CONTEXT RANKING and follow steps."/><Run/></TextBlock>
             </StackPanel>
         </ScrollViewer>
+        <Label Content="PARAMETERS" HorizontalAlignment="Left" Height="19" Margin="10,94,0,0" VerticalAlignment="Top" Width="246" FontWeight="Bold" FontSize="14"/>
+        <TextBlock Width="1000" Margin="10,127,-42,539" HorizontalAlignment="Left"><Run Text="Set up all parameters. One can remove lysine-coding A-homopolymers which can cause rybosomy sliding (more than 3 AAA repetitions), restriction enzymes sites or "/><LineBreak/><Run Text="manipulate effective number of codons. One can also manipulate genetic algorithm parameters.  "/></TextBlock>
+        <Label Content="CODON OPTIMIZATION" HorizontalAlignment="Left" Height="19" Margin="10,189,0,0" VerticalAlignment="Top" Width="246" FontWeight="Bold" FontSize="14"/>
+        <TextBlock Width="1000" Margin="10,222,-42,375" HorizontalAlignment="Left"><Run Text="Follow steps on the OPTIMIZATION page. "/><LineBreak/><Run/><LineBreak/><Run Text="CodonComposer is a piece of software which I designed and implemented for my Master's Thesis. It is still under construction. "/><LineBreak/><Run/><Run/><LineBreak/><Run Text="If"/><Run Text=" you have questions do not hesitate to mail me: melania.nowicka[at]gmail.com."/><Run Text=" "/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/></TextBlock>
+        <TextBlock Width="1000" Height="62" Margin="10,677,-42,17" HorizontalAlignment="Left"><Run Text="[1] Papamichail D., Liu H., Machado V., Gould N., Coleman J.R., Papamichail G., Codon Context Optimization in Synthetic Gene Design, "/><Run FontStyle="Italic" Text="CoRR"/><Run Text=", arXiv: 1508.03428, 2015."/><LineBreak/><Run/></TextBlock>
     </Grid>
 </UserControl>
